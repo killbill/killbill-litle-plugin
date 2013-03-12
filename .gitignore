@@ -28,3 +28,6 @@ killbill-litle/
 
 # Config file
 litle.yml
+
+# Testing database
+test.db

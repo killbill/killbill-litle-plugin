@@ -1,6 +1,8 @@
 require 'killbill'
 require 'litle/config'
 require 'litle/gateway'
+require 'litle/litle_payment_method'
+require 'litle/litle_response'
 
 module Killbill::Litle
   class PaymentPlugin < Killbill::Plugin::Payment
@@ -17,7 +19,16 @@ module Killbill::Litle
       @logger.info "Litle::PaymentPlugin started"
     end
 
-    def charge(killbill_account_id, killbill_payment_id, amount_in_cents, options = {})
+    def charge(kb_payment_id, kb_payment_method_id, amount_in_cents, options = {})
+      # Required argument
+      options[:order_id] ||= kb_payment_id
+
+      payment_method = LitlePaymentMethod.find_by_kb_payment_method_id(kb_payment_method_id)
+      raise "No payment method found for payment method #{kb_payment_method_id}" if payment_method.nil?
+
+      token = payment_method.litle_token
+      response = @gateway.purchase amount_in_cents, token, options
+      LitleResponse.from_response(kb_payment_id, response).save
     end
 
     def refund(killbill_account_id, killbill_payment_id, amount_in_cents, options = {})
