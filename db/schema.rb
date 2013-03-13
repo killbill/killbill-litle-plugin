@@ -8,7 +8,16 @@ ActiveRecord::Schema.define(:version => 20130311153635) do
     t.datetime "updated_at",             :null => false
   end
 
+  create_table "litle_transactions", :force => true do |t|
+    t.string   "api_call",        :null => false
+    t.string   "kb_payment_id",   :null => false
+    t.string   "litle_txn_id",    :null => false
+    t.datetime "created_at",      :null => false
+    t.datetime "updated_at",      :null => false
+  end
+
   create_table "litle_responses", :force => true do |t|
+    t.string   "api_call",        :null => false
     t.string   "kb_payment_id"
     t.string   "message"
     t.string   "authorization"
@@ -34,7 +43,7 @@ ActiveRecord::Schema.define(:version => 20130311153635) do
     t.string   "cvv_result_code"
     t.string   "cvv_result_message"
     t.boolean  "success"
-    t.datetime "created_at",             :null => false
-    t.datetime "updated_at",             :null => false
+    t.datetime "created_at",        :null => false
+    t.datetime "updated_at",        :null => false
   end
 end

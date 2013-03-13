@@ -22,11 +22,16 @@ describe Killbill::Litle::PaymentPlugin do
 
     @plugin.charge kb_payment_id, pm.kb_payment_method_id, amount_in_cents
 
-    response = LitleResponse.find_by_kb_payment_id kb_payment_id
+    response = LitleResponse.find_by_api_call_and_kb_payment_id :charge, kb_payment_id
     response.test.should be_true
     response.success.should be_true
     response.message.should == "Approved"
     response.params_litleonelineresponse_saleresponse_order_id.should == kb_payment_id
+
+    @plugin.refund kb_payment_id, amount_in_cents
+    response = LitleResponse.find_by_api_call_and_kb_payment_id :refund, kb_payment_id
+    response.test.should be_true
+    response.success.should be_true
   end
 
   private

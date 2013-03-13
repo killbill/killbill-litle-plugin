@@ -24,9 +24,12 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'killbill', '~> 1.0.0'
   s.add_dependency 'activemerchant', '~> 1.31.1'
-  s.add_dependency 'LitleOnline', '~> 08.13.2'
   s.add_dependency 'activerecord', '~> 3.2.1'
   s.add_dependency 'sinatra', '~> 1.3.4'
+  # LitleOnline gem dependencies
+  s.add_dependency 'LitleOnline', '> 8.15.0'
+  s.add_dependency 'xml-mapping', '~> 0.9.1'
+  s.add_dependency 'xml-object', '~> 0.9.93'
 
   s.add_development_dependency 'jbundler', '~> 0.4.1'
   s.add_development_dependency 'rake', '>= 10.0.0'

@@ -6,6 +6,11 @@ module Killbill::Litle
     include Singleton
 
     def configure(config)
+      if config[:log_file]
+        ActiveMerchant::Billing::LitleGateway.wiredump_device = File.open(config[:log_file], 'w')
+        ActiveMerchant::Billing::LitleGateway.wiredump_device.sync = true
+      end
+
       @gateway = ActiveMerchant::Billing::LitleGateway.new({
                                                              :merchant_id => config[:merchant_id],
                                                              :password => config[:password]

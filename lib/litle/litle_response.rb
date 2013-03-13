@@ -1,7 +1,8 @@
 require 'active_record'
 
 class LitleResponse < ActiveRecord::Base
-  attr_accessible :kb_payment_id,
+  attr_accessible :api_call,
+                  :kb_payment_id,
                   :message,
                   :authorization,
                   :fraud_review,
@@ -27,8 +28,18 @@ class LitleResponse < ActiveRecord::Base
                   :cvv_result_message,
                   :success
 
-  def self.from_response(kb_payment_id, response)
+  def litle_txn_id
+    if params_litleonelineresponse_saleresponse_litle_txn_id.blank?
+      nil
+    else
+      # Litle seems to return the precision sometimes along with the txnId (e.g. 053499651324799+19)
+      ("%f" % params_litleonelineresponse_saleresponse_litle_txn_id.split('+')[0]).to_i
+    end
+  end
+
+  def self.from_response(api_call, kb_payment_id, response)
     LitleResponse.new({
+                        :api_call => api_call,
                         :kb_payment_id => kb_payment_id,
                         :message => response.message,
                         :authorization => response.authorization,
