@@ -12,6 +12,7 @@ ActiveRecord::Schema.define(:version => 20130311153635) do
     t.string   "api_call",        :null => false
     t.string   "kb_payment_id",   :null => false
     t.string   "litle_txn_id",    :null => false
+    t.integer  "amount_in_cents", :null => false
     t.datetime "created_at",      :null => false
     t.datetime "updated_at",      :null => false
   end

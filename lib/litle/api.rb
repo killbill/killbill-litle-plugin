@@ -28,15 +28,16 @@ module Killbill::Litle
       token = get_token(kb_payment_method_id)
 
       litle_response = @gateway.purchase amount_in_cents, token, options
-      save_response_and_transaction :charge, kb_payment_id, litle_response
+      save_response_and_transaction amount_in_cents, :charge, kb_payment_id, litle_response
     end
 
     def refund(kb_payment_id, amount_in_cents, options = {})
-      litle_transaction = LitleTransaction.find_by_api_call_and_kb_payment_id(:charge, kb_payment_id)
+      # Find one successful charge which amount is at least the amount we are trying to refund
+      litle_transaction = LitleTransaction.where("litle_transactions.amount_in_cents >= ?", amount_in_cents).find_last_by_api_call_and_kb_payment_id(:charge, kb_payment_id)
       raise "Unable to find Litle transaction id for payment #{kb_payment_id}" if litle_transaction.nil?
 
       litle_response = @gateway.credit amount_in_cents, litle_transaction.litle_txn_id
-      save_response_and_transaction :refund, kb_payment_id, litle_response
+      save_response_and_transaction amount_in_cents, :refund, kb_payment_id, litle_response
     end
 
     def get_payment_info(killbill_payment_id, options = {})
@@ -66,7 +67,7 @@ module Killbill::Litle
       payment_method.litle_token
     end
 
-    def save_response_and_transaction(api_call, kb_payment_id, litle_response)
+    def save_response_and_transaction(amount_in_cents, api_call, kb_payment_id, litle_response)
       @logger.warn "Unsuccessful #{api_call}: #{litle_response.message}" unless litle_response.success?
 
       # Save the response to our logs
@@ -75,7 +76,7 @@ module Killbill::Litle
 
       if response.success and !response.litle_txn_id.blank?
         # Record the transaction
-        transaction = LitleTransaction.create(:api_call => api_call, :kb_payment_id => kb_payment_id, :litle_txn_id => response.litle_txn_id)
+        transaction = LitleTransaction.create(:amount_in_cents => amount_in_cents, :api_call => api_call, :kb_payment_id => kb_payment_id, :litle_txn_id => response.litle_txn_id)
         @logger.debug "Recorded transaction: #{transaction.inspect}"
         transaction
       end

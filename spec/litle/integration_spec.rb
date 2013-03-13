@@ -28,6 +28,9 @@ describe Killbill::Litle::PaymentPlugin do
     response.message.should == "Approved"
     response.params_litleonelineresponse_saleresponse_order_id.should == kb_payment_id
 
+    # Check we cannot refund an amount greater than the original charge
+    lambda { @plugin.refund kb_payment_id, amount_in_cents + 1 }.should raise_error RuntimeError
+
     @plugin.refund kb_payment_id, amount_in_cents
     response = LitleResponse.find_by_api_call_and_kb_payment_id :refund, kb_payment_id
     response.test.should be_true
