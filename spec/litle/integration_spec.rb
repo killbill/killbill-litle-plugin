@@ -15,23 +15,50 @@ describe Killbill::Litle::PaymentPlugin do
     @plugin.stop_plugin
   end
 
-  it "should connect to the sandbox" do
+  it "should be able to create and retrieve payment methods" do
+    pm = create_payment_method
+
+    pms = @plugin.get_payment_methods(pm.kb_account_id)
+    pms.size.should == 1
+    pms[0].external_payment_method_id.should == pm.litle_token
+
+    pm_details = @plugin.get_payment_method_detail(pm.kb_account_id, pm.kb_payment_method_id)
+    pm_details.external_payment_method_id.should == pm.litle_token
+
+    @plugin.delete_payment_method(pm.kb_payment_method_id)
+
+    @plugin.get_payment_methods(pm.kb_account_id).size.should == 0
+    lambda { @plugin.get_payment_method_detail(pm.kb_account_id, pm.kb_payment_method_id) }.should raise_error RuntimeError
+  end
+
+  it "should be able to charge and refund" do
     pm = create_payment_method
     amount_in_cents = 10000
-    kb_payment_id = '11223344'
+    kb_payment_id = SecureRandom.uuid
 
-    @plugin.charge kb_payment_id, pm.kb_payment_method_id, amount_in_cents
+    payment_response = @plugin.charge kb_payment_id, pm.kb_payment_method_id, amount_in_cents
+    payment_response.amount_in_cents.should == amount_in_cents
+    payment_response.status.should == "Approved"
 
+    # Verify our table directly
     response = LitleResponse.find_by_api_call_and_kb_payment_id :charge, kb_payment_id
     response.test.should be_true
     response.success.should be_true
     response.message.should == "Approved"
-    response.params_litleonelineresponse_saleresponse_order_id.should == kb_payment_id
+    response.params_litleonelineresponse_saleresponse_order_id.should == Killbill::Litle::Utils.compact_uuid(kb_payment_id)
+
+    payment_response = @plugin.get_payment_info kb_payment_id
+    payment_response.amount_in_cents.should == amount_in_cents
+    payment_response.status.should == "Approved"
 
     # Check we cannot refund an amount greater than the original charge
     lambda { @plugin.refund kb_payment_id, amount_in_cents + 1 }.should raise_error RuntimeError
 
-    @plugin.refund kb_payment_id, amount_in_cents
+    refund_response = @plugin.refund kb_payment_id, amount_in_cents
+    refund_response.amount_in_cents.should == amount_in_cents
+    refund_response.status.should == "Approved"
+
+    # Verify our table directly
     response = LitleResponse.find_by_api_call_and_kb_payment_id :refund, kb_payment_id
     response.test.should be_true
     response.success.should be_true
@@ -40,9 +67,10 @@ describe Killbill::Litle::PaymentPlugin do
   private
 
   def create_payment_method
-    kb_payment_method_id = '5678'
+    kb_account_id = SecureRandom.uuid
+    kb_payment_method_id = SecureRandom.uuid
     # litle tokens are between 13 and 25 characters long
-    litle_token = 17283748291029384756
-    LitlePaymentMethod.create :kb_payment_method_id => kb_payment_method_id, :litle_token => litle_token
+    litle_token = "17283748291029384756"
+    LitlePaymentMethod.create :kb_account_id => kb_account_id, :kb_payment_method_id => kb_payment_method_id, :litle_token => litle_token
   end
 end

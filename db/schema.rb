@@ -2,19 +2,22 @@ require 'active_record'
 
 ActiveRecord::Schema.define(:version => 20130311153635) do
   create_table "litle_payment_methods", :force => true do |t|
+    t.string   "kb_account_id",          :null => false
     t.string   "kb_payment_method_id",   :null => false
     t.string   "litle_token",            :null => false
+    t.boolean  "is_deleted",             :null => false, :default => false
     t.datetime "created_at",             :null => false
     t.datetime "updated_at",             :null => false
   end
 
   create_table "litle_transactions", :force => true do |t|
-    t.string   "api_call",        :null => false
-    t.string   "kb_payment_id",   :null => false
-    t.string   "litle_txn_id",    :null => false
-    t.integer  "amount_in_cents", :null => false
-    t.datetime "created_at",      :null => false
-    t.datetime "updated_at",      :null => false
+    t.integer  "litle_response_id", :null => false
+    t.string   "api_call",          :null => false
+    t.string   "kb_payment_id",     :null => false
+    t.string   "litle_txn_id",      :null => false
+    t.integer  "amount_in_cents",   :null => false
+    t.datetime "created_at",        :null => false
+    t.datetime "updated_at",        :null => false
   end
 
   create_table "litle_responses", :force => true do |t|

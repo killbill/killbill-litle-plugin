@@ -1,6 +1,9 @@
 require 'active_record'
+require 'killbill/response/payment_response'
+require 'killbill/response/refund_response'
 
 class LitleResponse < ActiveRecord::Base
+  has_one :litle_transaction
   attr_accessible :api_call,
                   :kb_payment_id,
                   :message,
@@ -29,11 +32,12 @@ class LitleResponse < ActiveRecord::Base
                   :success
 
   def litle_txn_id
-    if params_litleonelineresponse_saleresponse_litle_txn_id.blank?
+    potential_litle_txn_id = params_litleonelineresponse_saleresponse_litle_txn_id || authorization
+    if potential_litle_txn_id.blank?
       nil
     else
       # Litle seems to return the precision sometimes along with the txnId (e.g. 053499651324799+19)
-      ("%f" % params_litleonelineresponse_saleresponse_litle_txn_id.split('+')[0]).to_i
+      ("%f" % potential_litle_txn_id.split('+')[0]).to_i
     end
   end
 
@@ -68,7 +72,32 @@ class LitleResponse < ActiveRecord::Base
                      })
   end
 
+  def to_payment_response
+    to_killbill_response Killbill::Plugin::PaymentResponse
+  end
+
+  def to_refund_response
+    to_killbill_response Killbill::Plugin::RefundResponse
+  end
+
   private
+
+  def to_killbill_response(klass)
+    if litle_transaction.nil?
+      amount_in_cents = nil
+      created_date = created_at
+    else
+      amount_in_cents = litle_transaction.amount_in_cents
+      created_date = litle_transaction.created_at
+    end
+
+    effective_date = params_litleonelineresponse_saleresponse_response_time || created_date
+    status = message
+    gateway_error = params_litleonelineresponse_saleresponse_message
+    gateway_error_code = params_litleonelineresponse_saleresponse_response
+
+    klass.new(amount_in_cents, created_date, effective_date, status, gateway_error, gateway_error_code)
+  end
 
   def self.extract(response, key1, key2=nil, key3=nil)
     return nil if response.nil? || response.params.nil?
