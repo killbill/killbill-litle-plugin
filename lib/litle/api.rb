@@ -17,7 +17,7 @@ module Killbill::Litle
       @gateway.configure(config[:litle])
 
       super
-      @logger.info "Litle::PaymentPlugin started"
+      @logger.info "Killbill::Litle::PaymentPlugin started"
     end
 
     def get_name
