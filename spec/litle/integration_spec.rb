@@ -41,7 +41,7 @@ describe Killbill::Litle::PaymentPlugin do
     payment_response.status.should == "Approved"
 
     # Verify our table directly
-    response = LitleResponse.find_by_api_call_and_kb_payment_id :charge, kb_payment_id
+    response = Killbill::Litle::LitleResponse.find_by_api_call_and_kb_payment_id :charge, kb_payment_id
     response.test.should be_true
     response.success.should be_true
     response.message.should == "Approved"
@@ -59,7 +59,7 @@ describe Killbill::Litle::PaymentPlugin do
     refund_response.status.should == "Approved"
 
     # Verify our table directly
-    response = LitleResponse.find_by_api_call_and_kb_payment_id :refund, kb_payment_id
+    response = Killbill::Litle::LitleResponse.find_by_api_call_and_kb_payment_id :refund, kb_payment_id
     response.test.should be_true
     response.success.should be_true
   end
@@ -71,6 +71,6 @@ describe Killbill::Litle::PaymentPlugin do
     kb_payment_method_id = SecureRandom.uuid
     # litle tokens are between 13 and 25 characters long
     litle_token = "17283748291029384756"
-    LitlePaymentMethod.create :kb_account_id => kb_account_id, :kb_payment_method_id => kb_payment_method_id, :litle_token => litle_token
+    Killbill::Litle::LitlePaymentMethod.create :kb_account_id => kb_account_id, :kb_payment_method_id => kb_payment_method_id, :litle_token => litle_token
   end
 end
