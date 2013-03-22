@@ -62,6 +62,14 @@ describe Killbill::Litle::PaymentPlugin do
     response = Killbill::Litle::LitleResponse.find_by_api_call_and_kb_payment_id :refund, kb_payment_id
     response.test.should be_true
     response.success.should be_true
+
+    # Make sure we can charge again the same payment method
+    second_amount_in_cents = 29471
+    second_kb_payment_id = SecureRandom.uuid
+
+    payment_response = @plugin.charge second_kb_payment_id, pm.kb_payment_method_id, second_amount_in_cents
+    payment_response.amount_in_cents.should == second_amount_in_cents
+    payment_response.status.should == "Approved"
   end
 
   private
