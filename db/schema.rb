@@ -3,7 +3,7 @@ require 'active_record'
 ActiveRecord::Schema.define(:version => 20130311153635) do
   create_table "litle_payment_methods", :force => true do |t|
     t.string   "kb_account_id",          :null => false
-    t.string   "kb_payment_method_id",   :null => false
+    t.string   "kb_payment_method_id"    # NULL before Killbill knows about it
     t.string   "litle_token",            :null => false
     t.boolean  "is_deleted",             :null => false, :default => false
     t.datetime "created_at",             :null => false

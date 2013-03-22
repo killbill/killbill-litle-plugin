@@ -4,6 +4,7 @@ module Killbill::Litle
     attr_accessible :api_call,
                     :kb_payment_id,
                     :message,
+                    # Either litleToken (registerToken call) or litleTxnId
                     :authorization,
                     :fraud_review,
                     :test,
@@ -27,6 +28,10 @@ module Killbill::Litle
                     :cvv_result_code,
                     :cvv_result_message,
                     :success
+
+    def litle_token
+      authorization
+    end
 
     def litle_txn_id
       potential_litle_txn_id = params_litleonelineresponse_saleresponse_litle_txn_id || authorization

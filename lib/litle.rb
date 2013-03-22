@@ -11,6 +11,7 @@ require 'litle/config/configuration'
 require 'litle/config/properties'
 
 require 'litle/api'
+require 'litle/private_api'
 
 require 'litle/models/litle_payment_method'
 require 'litle/models/litle_response'
