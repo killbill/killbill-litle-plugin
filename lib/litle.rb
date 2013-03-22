@@ -6,7 +6,8 @@ require 'yaml'
 
 require 'killbill'
 
-require 'litle/config'
+require 'litle/config/properties'
+
 require 'litle/api'
 
 require 'litle/models/litle_payment_method'

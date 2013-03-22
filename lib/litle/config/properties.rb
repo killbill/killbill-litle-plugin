@@ -1,5 +1,5 @@
 module Killbill::Litle
-  class Config
+  class Properties
     def initialize(file = 'litle.yml')
       @config_file = Pathname.new(file).expand_path
     end

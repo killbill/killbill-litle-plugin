@@ -3,7 +3,7 @@ module Killbill::Litle
     attr_writer :config_file_name
 
     def start_plugin
-      config = Config.new("#{@root}/#{@config_file_name || 'litle.yml'}")
+      config = Properties.new("#{@root}/#{@config_file_name || 'litle.yml'}")
       config.parse!
 
       @gateway = Killbill::Litle::Gateway.instance
