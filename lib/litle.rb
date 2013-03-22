@@ -14,7 +14,7 @@ require 'litle/models/litle_response'
 require 'litle/models/litle_transaction'
 
 require 'litle/litle_utils'
-require 'litle/gateway'
+require 'litle/litle/gateway'
 
 class Object
   def blank?
