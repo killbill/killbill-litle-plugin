@@ -1,10 +1,3 @@
-require 'killbill'
-require 'litle/config'
-require 'litle/gateway'
-require 'litle/litle_payment_method'
-require 'litle/litle_response'
-require 'litle/litle_transaction'
-
 module Killbill::Litle
   class PaymentPlugin < Killbill::Plugin::Payment
     attr_writer :config_file_name

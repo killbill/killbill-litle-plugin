@@ -1,6 +1,3 @@
-require 'pathname'
-require 'yaml'
-
 module Killbill::Litle
   class Config
     def initialize(file = 'litle.yml')

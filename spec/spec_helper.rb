@@ -1,7 +1,5 @@
 require 'bundler'
 require 'litle'
-require 'litle/litle_payment_method'
-require 'litle/litle_utils'
 
 require 'rspec'
 

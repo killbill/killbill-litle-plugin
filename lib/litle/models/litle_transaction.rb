@@ -1,5 +1,3 @@
-require 'active_record'
-
 module Killbill::Litle
   class LitleTransaction < ActiveRecord::Base
     belongs_to :litle_response

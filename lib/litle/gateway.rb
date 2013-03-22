@@ -1,6 +1,3 @@
-require 'activemerchant'
-require 'singleton'
-
 module Killbill::Litle
   class Gateway
     include Singleton

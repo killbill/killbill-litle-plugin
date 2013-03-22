@@ -1,7 +1,3 @@
-require 'active_record'
-require 'killbill/response/payment_response'
-require 'killbill/response/refund_response'
-
 module Killbill::Litle
   class LitleResponse < ActiveRecord::Base
     has_one :litle_transaction

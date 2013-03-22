@@ -1,6 +1,3 @@
-require 'active_record'
-require 'killbill/response/payment_method_response'
-
 module Killbill::Litle
   class LitlePaymentMethod < ActiveRecord::Base
     attr_accessible :kb_account_id, :kb_payment_method_id, :litle_token
