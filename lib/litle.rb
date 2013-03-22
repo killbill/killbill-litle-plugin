@@ -1,11 +1,13 @@
 require 'active_record'
 require 'activemerchant'
 require 'pathname'
+require 'sinatra'
 require 'singleton'
 require 'yaml'
 
 require 'killbill'
 
+require 'litle/config/configuration'
 require 'litle/config/properties'
 
 require 'litle/api'

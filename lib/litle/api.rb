@@ -1,15 +1,11 @@
 module Killbill::Litle
   class PaymentPlugin < Killbill::Plugin::Payment
-    attr_writer :config_file_name
-
     def start_plugin
-      config = Properties.new("#{@root}/#{@config_file_name || 'litle.yml'}")
-      config.parse!
-
-      @gateway = Killbill::Litle::Gateway.instance
-      @gateway.configure(config[:litle])
+      Killbill::Litle.initialize! "#{@root}/litle.yml", @logger
+      @gateway = Killbill::Litle.gateway
 
       super
+
       @logger.info "Killbill::Litle::PaymentPlugin started"
     end
 

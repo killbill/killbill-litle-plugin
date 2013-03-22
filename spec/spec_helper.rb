@@ -1,6 +1,8 @@
 require 'bundler'
 require 'litle'
 
+require 'logger'
+
 require 'rspec'
 
 RSpec.configure do |config|

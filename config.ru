@@ -1,5 +1,4 @@
-require 'active_merchant'
-require 'json'
-require 'sinatra'
+require 'litle'
+require 'litle/config/application'
 
 run Sinatra::Application
