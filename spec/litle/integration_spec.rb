@@ -36,7 +36,7 @@ describe Killbill::Litle::PaymentPlugin do
     amount_in_cents = 10000
     kb_payment_id = SecureRandom.uuid
 
-    payment_response = @plugin.charge kb_payment_id, pm.kb_payment_method_id, amount_in_cents
+    payment_response = @plugin.process_charge kb_payment_id, pm.kb_payment_method_id, amount_in_cents
     payment_response.amount_in_cents.should == amount_in_cents
     payment_response.status.should == "Approved"
 
@@ -54,7 +54,7 @@ describe Killbill::Litle::PaymentPlugin do
     # Check we cannot refund an amount greater than the original charge
     lambda { @plugin.refund kb_payment_id, amount_in_cents + 1 }.should raise_error RuntimeError
 
-    refund_response = @plugin.refund kb_payment_id, amount_in_cents
+    refund_response = @plugin.process_refund kb_payment_id, amount_in_cents
     refund_response.amount_in_cents.should == amount_in_cents
     refund_response.status.should == "Approved"
 
@@ -67,7 +67,7 @@ describe Killbill::Litle::PaymentPlugin do
     second_amount_in_cents = 29471
     second_kb_payment_id = SecureRandom.uuid
 
-    payment_response = @plugin.charge second_kb_payment_id, pm.kb_payment_method_id, second_amount_in_cents
+    payment_response = @plugin.process_charge second_kb_payment_id, pm.kb_payment_method_id, second_amount_in_cents
     payment_response.amount_in_cents.should == second_amount_in_cents
     payment_response.status.should == "Approved"
   end

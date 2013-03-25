@@ -13,7 +13,7 @@ module Killbill::Litle
       'litle'
     end
 
-    def charge(kb_payment_id, kb_payment_method_id, amount_in_cents, options = {})
+    def process_charge(kb_payment_id, kb_payment_method_id, amount_in_cents, options = {})
       # Required argument
       # Note! The field is limited to 25 chars, so we convert the UUID (in hex) to base64
       options[:order_id] ||= Utils.compact_uuid kb_payment_id
@@ -31,7 +31,7 @@ module Killbill::Litle
       response.to_payment_response
     end
 
-    def refund(kb_payment_id, amount_in_cents, options = {})
+    def process_refund(kb_payment_id, amount_in_cents, options = {})
       # Find one successful charge which amount is at least the amount we are trying to refund
       litle_transaction = LitleTransaction.where("litle_transactions.amount_in_cents >= ?", amount_in_cents).find_last_by_api_call_and_kb_payment_id(:charge, kb_payment_id)
       raise "Unable to find Litle transaction id for payment #{kb_payment_id}" if litle_transaction.nil?
@@ -74,7 +74,7 @@ module Killbill::Litle
       LitlePaymentMethod.from_kb_payment_method_id(kb_payment_method_id).to_payment_method_response
     end
 
-    def get_payment_methods(kb_account_id, options = {})
+    def get_payment_methods(kb_account_id, refresh_from_gateway = false, options = {})
       LitlePaymentMethod.from_kb_account_id(kb_account_id).collect { |pm| pm.to_payment_method_response }
     end
 
