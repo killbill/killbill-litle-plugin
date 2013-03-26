@@ -25,7 +25,7 @@ describe Killbill::Litle::PaymentPlugin do
     pm_details = @plugin.get_payment_method_detail(pm.kb_account_id, pm.kb_payment_method_id)
     pm_details.external_payment_method_id.should == pm.litle_token
 
-    @plugin.delete_payment_method(pm.kb_payment_method_id)
+    @plugin.delete_payment_method(pm.kb_account_id, pm.kb_payment_method_id)
 
     @plugin.get_payment_methods(pm.kb_account_id).size.should == 0
     lambda { @plugin.get_payment_method_detail(pm.kb_account_id, pm.kb_payment_method_id) }.should raise_error RuntimeError
@@ -34,9 +34,10 @@ describe Killbill::Litle::PaymentPlugin do
   it "should be able to charge and refund" do
     pm = create_payment_method
     amount_in_cents = 10000
+    currency = 'USD'
     kb_payment_id = SecureRandom.uuid
 
-    payment_response = @plugin.process_charge kb_payment_id, pm.kb_payment_method_id, amount_in_cents
+    payment_response = @plugin.process_charge pm.kb_account_id, kb_payment_id, pm.kb_payment_method_id, amount_in_cents, currency
     payment_response.amount_in_cents.should == amount_in_cents
     payment_response.status.should == "Approved"
 
@@ -47,14 +48,14 @@ describe Killbill::Litle::PaymentPlugin do
     response.message.should == "Approved"
     response.params_litleonelineresponse_saleresponse_order_id.should == Killbill::Litle::Utils.compact_uuid(kb_payment_id)
 
-    payment_response = @plugin.get_payment_info kb_payment_id
+    payment_response = @plugin.get_payment_info pm.kb_account_id, kb_payment_id
     payment_response.amount_in_cents.should == amount_in_cents
     payment_response.status.should == "Approved"
 
     # Check we cannot refund an amount greater than the original charge
-    lambda { @plugin.refund kb_payment_id, amount_in_cents + 1 }.should raise_error RuntimeError
+    lambda { @plugin.process_refund pm.kb_account_id, kb_payment_id, amount_in_cents + 1, currency }.should raise_error RuntimeError
 
-    refund_response = @plugin.process_refund kb_payment_id, amount_in_cents
+    refund_response = @plugin.process_refund pm.kb_account_id, kb_payment_id, amount_in_cents, currency
     refund_response.amount_in_cents.should == amount_in_cents
     refund_response.status.should == "Approved"
 
@@ -67,7 +68,7 @@ describe Killbill::Litle::PaymentPlugin do
     second_amount_in_cents = 29471
     second_kb_payment_id = SecureRandom.uuid
 
-    payment_response = @plugin.process_charge second_kb_payment_id, pm.kb_payment_method_id, second_amount_in_cents
+    payment_response = @plugin.process_charge pm.kb_account_id, second_kb_payment_id, pm.kb_payment_method_id, second_amount_in_cents, currency
     payment_response.amount_in_cents.should == second_amount_in_cents
     payment_response.status.should == "Approved"
   end
