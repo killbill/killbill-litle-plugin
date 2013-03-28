@@ -9,10 +9,6 @@ module Killbill::Litle
       @logger.info "Killbill::Litle::PaymentPlugin started"
     end
 
-    def get_name
-      'litle'
-    end
-
     def process_charge(kb_account_id, kb_payment_id, kb_payment_method_id, amount_in_cents, currency, options = {})
       # Required argument
       # Note! The field is limited to 25 chars, so we convert the UUID (in hex) to base64
