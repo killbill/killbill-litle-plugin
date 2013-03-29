@@ -21,7 +21,7 @@ get '/plugins/killbill-litle' do
     :order_id => request.GET['order_id'] || '1',
     :report_group => request.GET['report_group'] || 'Default Report Group',
   }
-  erb :paypage, :views => 'lib/litle/views', :locals => locals
+  erb :paypage, :views => File.expand_path(File.dirname(__FILE__) + '/../views'), :locals => locals
 end
 
 post '/plugins/killbill-litle/checkout' do
