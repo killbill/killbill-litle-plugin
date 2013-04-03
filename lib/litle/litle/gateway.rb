@@ -12,7 +12,7 @@ module Killbill::Litle
         ActiveMerchant::Billing::LitleGateway.wiredump_device.sync = true
       end
 
-      @gateway = ActiveMerchant::Billing::LitleGateway.new({
+      @gateway = ActiveMerchant::Billing::LitleGateway.new({ :user => config[:username],
                                                              :merchant_id => config[:merchant_id],
                                                              :password => config[:password]
                                                            })

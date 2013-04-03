@@ -1,3 +1,5 @@
+
+
 module Killbill::Litle
   class LitleResponse < ActiveRecord::Base
     has_one :litle_transaction
@@ -94,7 +96,7 @@ module Killbill::Litle
       end
 
       effective_date = params_litleonelineresponse_saleresponse_response_time || created_date
-      status = message
+      status = message == 'Approved' ? Killbill::Plugin::PaymentStatus::SUCCESS : Killbill::Plugin::PaymentStatus::ERROR
       gateway_error = params_litleonelineresponse_saleresponse_message
       gateway_error_code = params_litleonelineresponse_saleresponse_response
 

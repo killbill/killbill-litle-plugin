@@ -9,14 +9,18 @@ module Killbill::Litle
       @logger.info "Killbill::Litle::PaymentPlugin started"
     end
 
-    def process_charge(kb_account_id, kb_payment_id, kb_payment_method_id, amount_in_cents, currency, options = {})
+    # return DB connections to the Pool if required
+    def after_request
+      ActiveRecord::Base.connection.close
+    end
+
+    def process_payment(kb_account_id, kb_payment_id, kb_payment_method_id, amount_in_cents, currency, options = {})
       # Required argument
       # Note! The field is limited to 25 chars, so we convert the UUID (in hex) to base64
       options[:order_id] ||= Utils.compact_uuid kb_payment_id
 
       # Set a default report group
-      options[:merchant] ||= report_group_for_payment_method(kb_payment_method_id)
-
+      options[:merchant] ||= report_group_for_currency(currency)
       # Retrieve the Litle token
       token = get_token(kb_payment_method_id)
 
@@ -33,7 +37,7 @@ module Killbill::Litle
       raise "Unable to find Litle transaction id for payment #{kb_payment_id}" if litle_transaction.nil?
 
       # Set a default report group
-      options[:merchant] ||= report_group_for_payment(kb_payment_id)
+      options[:merchant] ||= report_group_for_currency(currency)
 
       # Go to Litle
       litle_response = @gateway.credit amount_in_cents, litle_transaction.litle_txn_id, options
@@ -76,27 +80,22 @@ module Killbill::Litle
 
     private
 
-    def report_group_for_payment(kb_payment_id)
-      payment = payment_api.get_payment(kb_payment_method_id, nil)
-      report_group_for_account payment.get_account_id
-    rescue APINotAvailableError
-      "Default Report Group"
-    end
-
-    def report_group_for_payment_method(kb_payment_method_id)
-      payment_method = payment_api.get_payment_method_by_id(kb_payment_method_id, false, nil)
-      report_group_for_account payment_method.get_account_id
-    rescue APINotAvailableError
-      "Default Report Group"
-    end
-
     def report_group_for_account(kb_account_id)
+=begin
       account = account_user_api.get_account_by_id(kb_account_id)
       currency = account.get_currency
-      "Report Group for #{currency}"
+      report_group_for_currency(currency)
     rescue APINotAvailableError
       "Default Report Group"
+=end
+      # STEPH hack until we support making API calls-- with context
+      report_group_for_currency('USD')
     end
+
+    def report_group_for_currency(currency)
+      "Report Group for #{currency}"
+    end
+
 
     def get_token(kb_payment_method_id)
       LitlePaymentMethod.from_kb_payment_method_id(kb_payment_method_id).litle_token

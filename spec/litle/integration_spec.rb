@@ -37,9 +37,9 @@ describe Killbill::Litle::PaymentPlugin do
     currency = 'USD'
     kb_payment_id = SecureRandom.uuid
 
-    payment_response = @plugin.process_charge pm.kb_account_id, kb_payment_id, pm.kb_payment_method_id, amount_in_cents, currency
+    payment_response = @plugin.process_payment pm.kb_account_id, kb_payment_id, pm.kb_payment_method_id, amount_in_cents, currency
     payment_response.amount_in_cents.should == amount_in_cents
-    payment_response.status.should == "Approved"
+    payment_response.status.should == Killbill::Plugin::PaymentStatus::SUCCESS
 
     # Verify our table directly
     response = Killbill::Litle::LitleResponse.find_by_api_call_and_kb_payment_id :charge, kb_payment_id
@@ -50,14 +50,14 @@ describe Killbill::Litle::PaymentPlugin do
 
     payment_response = @plugin.get_payment_info pm.kb_account_id, kb_payment_id
     payment_response.amount_in_cents.should == amount_in_cents
-    payment_response.status.should == "Approved"
+    payment_response.status.should == Killbill::Plugin::PaymentStatus::SUCCESS
 
     # Check we cannot refund an amount greater than the original charge
     lambda { @plugin.process_refund pm.kb_account_id, kb_payment_id, amount_in_cents + 1, currency }.should raise_error RuntimeError
 
     refund_response = @plugin.process_refund pm.kb_account_id, kb_payment_id, amount_in_cents, currency
     refund_response.amount_in_cents.should == amount_in_cents
-    refund_response.status.should == "Approved"
+    refund_response.status.should == Killbill::Plugin::PaymentStatus::SUCCESS
 
     # Verify our table directly
     response = Killbill::Litle::LitleResponse.find_by_api_call_and_kb_payment_id :refund, kb_payment_id
@@ -68,9 +68,9 @@ describe Killbill::Litle::PaymentPlugin do
     second_amount_in_cents = 29471
     second_kb_payment_id = SecureRandom.uuid
 
-    payment_response = @plugin.process_charge pm.kb_account_id, second_kb_payment_id, pm.kb_payment_method_id, second_amount_in_cents, currency
+    payment_response = @plugin.process_payment pm.kb_account_id, second_kb_payment_id, pm.kb_payment_method_id, second_amount_in_cents, currency
     payment_response.amount_in_cents.should == second_amount_in_cents
-    payment_response.status.should == "Approved"
+    payment_response.status.should == Killbill::Plugin::PaymentStatus::SUCCESS
   end
 
   private
