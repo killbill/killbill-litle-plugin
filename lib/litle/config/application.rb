@@ -20,6 +20,8 @@ get '/plugins/killbill-litle' do
     :merchant_txn_id => request.GET['merchant_txn_id'] || '1',
     :order_id => request.GET['order_id'] || '1',
     :report_group => request.GET['report_group'] || 'Default Report Group',
+    :success_page => params[:successPage] || '/plugins/killbill-litle/checkout',
+    :failure_page => params[:failurePage]
   }
   erb :paypage, :views => File.expand_path(File.dirname(__FILE__) + '/../views'), :locals => locals
 end

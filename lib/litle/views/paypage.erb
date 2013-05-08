@@ -6,6 +6,25 @@
     <script>
     $(document).ready(
       function() {
+        function handleError(errorMessage) {
+          <% if failure_page %>
+            var form = document.createElement("form");
+            form.setAttribute("method", "post");
+            form.setAttribute("action", "<%= failure_page %>");
+
+            var hiddenField = document.createElement("input");
+            hiddenField.setAttribute("type", "hidden");
+            hiddenField.setAttribute("name", "errorMessage");
+            hiddenField.setAttribute("value", errorMessage);
+            form.appendChild(hiddenField);
+
+            document.body.appendChild(form);
+            form.submit();
+          <% else %>
+            alert(errorMessage);
+          <% end %>
+        }
+
         function setLitleResponseFields(response) {
           document.getElementById('response_code').value = response.response;
           document.getElementById('response_message').value = response.message;
@@ -20,34 +39,34 @@
         }
 
         function timeoutOnLitle() {
-          alert("We are experiencing technical difficulties. Please try your query again later.");
+          handleError("We are experiencing technical difficulties. Please try your query again later.");
         }
 
         function onErrorAfterLitle(response) {
           setLitleResponseFields(response);
           if (response.response == '871') {
-            alert("Invalid card number. Check and retry. (Not Mod10)");
+            handleError("Invalid card number. Check and retry. (Not Mod10)");
           }
           else if (response.response == '872') {
-            alert("Invalid card number. Check and retry. (Too short)");
+            handleError("Invalid card number. Check and retry. (Too short)");
           }
           else if (response.response == '873') {
-            alert("Invalid card number. Check and retry. (Too long)");
+            handleError("Invalid card number. Check and retry. (Too long)");
           }
           else if (response.response == '874') {
-            alert("Invalid card number. Check and retry. (Not a number)");
+            handleError("Invalid card number. Check and retry. (Not a number)");
           }
           else if (response.response == '875') {
-            alert("We are experiencing technical difficulties. Please try your query again later.");
+            handleError("We are experiencing technical difficulties. Please try your query again later.");
           }
           else if (response.response == '876') {
-            alert("Invalid card number. Check and retry. (Failure from Server)");
+            handleError("Invalid card number. Check and retry. (Failure from Server)");
           }
           else if (response.response == '880') {
-            alert("Invalid report group. Check and retry. (Failure from Server)");
+            handleError("Invalid report group. Check and retry. (Failure from Server)");
           }
           else if (response.response == '889') {
-            alert("We are experiencing technical difficulties. Please try your query again later.");
+            handleError("We are experiencing technical difficulties. Please try your query again later.");
           }
           return false;
         }
@@ -80,8 +99,7 @@
     </script>
   </head>
   <body>
-    <h2>Checkout Form</h2>
-    <form method="post" id="form_checkout" name="form_checkout" action="/plugins/killbill-litle/checkout">
+    <form method="post" id="form_checkout" name="form_checkout" action="<%= success_page %>">
       <input type="hidden" id="kb_account_id" name="kb_account_id" value="<%= kb_account_id %>"/>
 
       <input type="hidden" id="request_paypage_id" name="request_paypage_id" value="<%= paypage_id %>"/>
@@ -98,7 +116,7 @@
         <tr><td>&nbsp;</td></tr>
         <tr><td></td><td align="right">
           <script>
-          document.write('<button type="button" id="submitId" onclick="callLitle()">Check out with Pay Page</button>');
+          document.write('<button type="button" id="submitId" onclick="callLitle()">Check out</button>');
           </script>
           <noscript>
             <button type="button" id="submitId">Enable JavaScript!</button>
@@ -117,8 +135,8 @@
   </body>
   <script>
   function callLitle() {
-    if(typeof sendToLitle != 'function') {
-      alert("We are experiencing technical difficulties. Please try your query again later (API unavailable).");
+    if (typeof sendToLitle != 'function') {
+      handleError("We are experiencing technical difficulties. Please try your query again later (API unavailable).");
     }
   }
   </script>
