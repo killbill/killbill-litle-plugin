@@ -6,8 +6,8 @@ ActiveMerchant::Billing::Base.mode = :test
 describe Killbill::Litle::PaymentPlugin do
   before(:each) do
     @plugin = Killbill::Litle::PaymentPlugin.new
-    @plugin.root = File.expand_path(File.dirname(__FILE__) + '../../../')
     @plugin.logger = Logger.new(STDOUT)
+    @plugin.conf_dir = File.expand_path(File.dirname(__FILE__) + '../../../')
     @plugin.start_plugin
   end
 
