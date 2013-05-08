@@ -7,9 +7,10 @@ module Killbill::Litle
   mattr_reader :initialized
   mattr_reader :test
 
-  def self.initialize!(config_file='litle.yml', logger=Logger.new(STDOUT))
+  def self.initialize!(logger=Logger.new(STDOUT), conf_dir=File.expand_path('../../../', File.dirname(__FILE__)))
     @@logger = logger
 
+    config_file = "#{conf_dir}/litle.yml"
     @@config = Properties.new(config_file)
     @@config.parse!
     @@test = @@config[:litle][:test]
