@@ -25,7 +25,7 @@
     <groupId>com.ning.killbill.ruby</groupId>
     <artifactId>litle-plugin</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.0</version>
+    <version>1.0.2</version>
     <name>litle-plugin</name>
     <scm>
         <connection>scm:git:git://github.com/killbill/killbill-litle-plugin.git</connection>
