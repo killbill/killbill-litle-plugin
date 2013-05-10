@@ -77,30 +77,38 @@ module Killbill::Litle
     end
 
     def to_payment_response
-      to_killbill_response Killbill::Plugin::PaymentResponse
+      to_killbill_response :payment
     end
 
     def to_refund_response
-      to_killbill_response Killbill::Plugin::RefundResponse
+      to_killbill_response :refund
     end
 
     private
 
-    def to_killbill_response(klass)
+    def to_killbill_response(type)
       if litle_transaction.nil?
         amount_in_cents = nil
         created_date = created_at
+        first_payment_reference_id = nil
+        second_payment_reference_id = nil
       else
         amount_in_cents = litle_transaction.amount_in_cents
         created_date = litle_transaction.created_at
+        first_payment_reference_id = litle_transaction.litle_txn_id
+        second_payment_reference_id = litle_transaction.id.to_s
       end
 
       effective_date = params_litleonelineresponse_saleresponse_response_time || created_date
-      status = message == 'Approved' ? Killbill::Plugin::PaymentStatus::SUCCESS : Killbill::Plugin::PaymentStatus::ERROR
-      gateway_error = params_litleonelineresponse_saleresponse_message
+      status = success ? Killbill::Plugin::PaymentStatus::SUCCESS : Killbill::Plugin::PaymentStatus::ERROR
+      gateway_error = message || params_litleonelineresponse_saleresponse_message
       gateway_error_code = params_litleonelineresponse_saleresponse_response
 
-      klass.new(amount_in_cents, created_date, effective_date, status, gateway_error, gateway_error_code)
+      if type == :payment
+        Killbill::Plugin::PaymentResponse.new(amount_in_cents, created_date, effective_date, status, gateway_error, gateway_error_code, first_payment_reference_id, second_payment_reference_id)
+      else
+        Killbill::Plugin::RefundResponse.new(amount_in_cents, created_date, effective_date, status, gateway_error, gateway_error_code, first_payment_reference_id)
+      end
     end
 
     def self.extract(response, key1, key2=nil, key3=nil)

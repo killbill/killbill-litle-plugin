@@ -15,6 +15,11 @@ module Killbill::Litle
     end
 
     def process_payment(kb_account_id, kb_payment_id, kb_payment_method_id, amount_in_cents, currency, options = {})
+      # If the payment was already made, just return the status
+      # TODO Should we set the Litle Id field to check for dups (https://www.litle.com/mc-secure/DupeChecking_V1.2.pdf)?
+      litle_transaction = LitleTransaction.from_kb_payment_id(kb_payment_id) rescue nil
+      return litle_transaction.litle_response.to_payment_response unless litle_transaction.nil?
+
       # Required argument
       # Note! The field is limited to 25 chars, so we convert the UUID (in hex) to base64
       options[:order_id] ||= Utils.compact_uuid kb_payment_id
@@ -32,9 +37,7 @@ module Killbill::Litle
     end
 
     def process_refund(kb_account_id, kb_payment_id, amount_in_cents, currency, options = {})
-      # Find one successful charge which amount is at least the amount we are trying to refund
-      litle_transaction = LitleTransaction.where("litle_transactions.amount_in_cents >= ?", amount_in_cents).find_last_by_api_call_and_kb_payment_id(:charge, kb_payment_id)
-      raise "Unable to find Litle transaction id for payment #{kb_payment_id}" if litle_transaction.nil?
+      litle_transaction = LitleTransaction.find_candidate_transaction_for_refund(kb_payment_id, amount_in_cents)
 
       # Set a default report group
       options[:merchant] ||= report_group_for_currency(currency)
