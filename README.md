@@ -6,6 +6,12 @@ killbill-litle-plugin
 
 Plugin to use Litle &amp; Co. as a gateway.
 
+Requirements
+------------
+
+The plugin needs a database. The latest version of the schema can be found here: https://raw.github.com/killbill/killbill-litle-plugin/master/db/ddl.sql.
+
+
 Configuration
 -------------
 
