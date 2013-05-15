@@ -27,14 +27,12 @@ get '/plugins/killbill-litle' do
 end
 
 post '/plugins/killbill-litle/checkout' do
-  data = request.POST
+  data = request.body.read
 
-  begin
-    pm = plugin.register_token! data['kb_account_id'], data['response_paypage_registration_id']
-    redirect "/plugins/killbill-litle/1.0/pms/#{pm.id}"
-  rescue => e
-    halt 500, {'Content-Type' => 'text/plain'}, "Error: #{e}"
-  end
+  halt 400, "kb_account_id and response_paypage_registration_id must be specified!" if data['kb_account_id'].blank? or data['response_paypage_registration_id'].blank?
+
+  pm = plugin.register_token! data['kb_account_id'], data['response_paypage_registration_id']
+  redirect "/plugins/killbill-litle/1.0/pms/#{pm.id}"
 end
 
 # curl -v http://127.0.0.1:9292/plugins/killbill-litle/1.0/pms/1
