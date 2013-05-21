@@ -3,9 +3,25 @@ require 'logger'
 
 ActiveMerchant::Billing::Base.mode = :test
 
+
+
+class KillbillApiWithFakeGetAccountById < Killbill::Plugin::KillbillApi
+
+  def initialize(japi_proxy)
+    super(japi_proxy)
+  end
+
+  # Returns an account where we specify the currency for the report group
+  def get_account_by_id(id)
+    Killbill::Plugin::Model::Account.new(id, nil, nil, nil, nil, nil, 1, nil, 1, 'USD', nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, false, true)
+  end
+end
+
 describe Killbill::Litle::PaymentPlugin do
   before(:each) do
     @plugin = Killbill::Litle::PaymentPlugin.new
+    kb_apis = KillbillApiWithFakeGetAccountById.new(nil)
+    @plugin.kb_apis = kb_apis
     @plugin.logger = Logger.new(STDOUT)
     @plugin.conf_dir = File.expand_path(File.dirname(__FILE__) + '../../../')
     @plugin.start_plugin

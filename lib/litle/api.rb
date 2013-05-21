@@ -86,9 +86,9 @@ module Killbill::Litle
 
     def report_group_for_account(kb_account_id)
       account = @kb_apis.get_account_by_id(kb_account_id)
-      currency = account.get_currency
+      currency = account.currency
       report_group_for_currency(currency)
-    rescue APINotAvailableError
+    rescue Killbill::Plugin::JKillbillApi::APINotAvailableError
       "Default Report Group"
     end
 
