@@ -26,7 +26,7 @@ module Killbill::Litle
       # No extra information is stored in Litle
       properties = []
 
-      Killbill::Plugin::PaymentMethodResponse.new external_payment_method_id, is_default, properties
+      Killbill::Plugin::Model::PaymentMethodPlugin.new(external_payment_method_id, is_default, properties, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil)
     end
   end
 end

@@ -100,14 +100,15 @@ module Killbill::Litle
       end
 
       effective_date = params_litleonelineresponse_saleresponse_response_time || created_date
-      status = success ? Killbill::Plugin::PaymentStatus::SUCCESS : Killbill::Plugin::PaymentStatus::ERROR
       gateway_error = message || params_litleonelineresponse_saleresponse_message
       gateway_error_code = params_litleonelineresponse_saleresponse_response
 
       if type == :payment
-        Killbill::Plugin::PaymentResponse.new(amount_in_cents, created_date, effective_date, status, gateway_error, gateway_error_code, first_payment_reference_id, second_payment_reference_id)
+        status = success ? Killbill::Plugin::Model::PaymentPluginStatus.new(:PROCESSED) : Killbill::Plugin::Model::PaymentPluginStatus.new(:ERROR)
+        Killbill::Plugin::Model::PaymentInfoPlugin.new(amount_in_cents, created_date, effective_date, status, gateway_error, gateway_error_code, first_payment_reference_id, second_payment_reference_id)
       else
-        Killbill::Plugin::RefundResponse.new(amount_in_cents, created_date, effective_date, status, gateway_error, gateway_error_code, first_payment_reference_id)
+        status = success ? Killbill::Plugin::Model::RefundPluginStatus.new(:PROCESSED) : Killbill::Plugin::Model::RefundPluginStatus.new(:ERROR)
+        Killbill::Plugin::Model::RefundInfoPlugin.new(amount_in_cents, created_date, effective_date, status, gateway_error, gateway_error_code, first_payment_reference_id)
       end
     end
 
