@@ -84,15 +84,11 @@ module Killbill::Litle
     private
 
     def report_group_for_account(kb_account_id)
-=begin
-      account = account_user_api.get_account_by_id(kb_account_id)
+      account = @kb_apis.get_account_by_id(kb_account_id)
       currency = account.get_currency
       report_group_for_currency(currency)
     rescue APINotAvailableError
       "Default Report Group"
-=end
-      # STEPH hack until we support making API calls-- with context
-      report_group_for_currency('USD')
     end
 
     def report_group_for_currency(currency)
