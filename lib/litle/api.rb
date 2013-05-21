@@ -63,7 +63,7 @@ module Killbill::Litle
       options[:merchant] ||= report_group_for_account(kb_account_id)
 
       # TODO Add support for real credit cards
-      token = payment_method_props.value('paypageRegistrationId')
+      token = (payment_method_props.properties.find { |kv| kv.key == 'paypageRegistrationId' }).value
       litle_response = @gateway.store token, options
       response = save_response_and_transaction litle_response, :add_payment_method
 

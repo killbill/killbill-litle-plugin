@@ -81,7 +81,7 @@ describe Killbill::Litle::PaymentPlugin do
 
     # Generate a token in Litle
     paypage_registration_id = '123456789012345678901324567890abcdefghi'
-    info = Killbill::Plugin::PaymentMethodResponse.new nil, nil, [Killbill::Plugin::PaymentMethodProperty.new("paypageRegistrationId", paypage_registration_id, false)]
+    info = Killbill::Plugin::Model::PaymentMethodPlugin.new nil, nil, [Killbill::Plugin::Model::PaymentMethodKVInfo.new(false, "paypageRegistrationId", paypage_registration_id)], nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil
     payment_method = @plugin.add_payment_method(kb_account_id, kb_payment_method_id, info)
 
     pm = Killbill::Litle::LitlePaymentMethod.from_kb_payment_method_id kb_payment_method_id
