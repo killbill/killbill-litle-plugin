@@ -78,8 +78,16 @@ describe Killbill::Litle::PaymentPlugin do
   def create_payment_method
     kb_account_id = SecureRandom.uuid
     kb_payment_method_id = SecureRandom.uuid
-    # litle tokens are between 13 and 25 characters long
-    litle_token = "17283748291029384756"
-    Killbill::Litle::LitlePaymentMethod.create :kb_account_id => kb_account_id, :kb_payment_method_id => kb_payment_method_id, :litle_token => litle_token
+
+    # Generate a token in Litle
+    paypage_registration_id = '123456789012345678901324567890abcdefghi'
+    info = Killbill::Plugin::PaymentMethodResponse.new nil, nil, [Killbill::Plugin::PaymentMethodProperty.new("paypageRegistrationId", paypage_registration_id, false)]
+    payment_method = @plugin.add_payment_method(kb_account_id, kb_payment_method_id, info)
+
+    pm = Killbill::Litle::LitlePaymentMethod.from_kb_payment_method_id kb_payment_method_id
+    pm.kb_account_id.should == kb_account_id
+    pm.kb_payment_method_id.should == kb_payment_method_id
+    pm.litle_token.should_not be_nil
+    pm
   end
 end

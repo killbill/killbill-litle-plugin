@@ -41,7 +41,9 @@ module Killbill::Litle
         nil
       else
         # Litle seems to return the precision sometimes along with the txnId (e.g. 053499651324799+19)
-        ("%f" % potential_litle_txn_id.split('+')[0]).to_i
+        # And sometimes it adds a ;credit
+        # TODO Figure out WTF is going on here
+        ("%f" % potential_litle_txn_id.split(';')[0].split('+')[0]).to_i
       end
     end
 
