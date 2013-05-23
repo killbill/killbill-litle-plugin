@@ -14,7 +14,7 @@ module Killbill::Litle
       ActiveRecord::Base.connection.close
     end
 
-    def process_payment(kb_account_id, kb_payment_id, kb_payment_method_id, amount_in_cents, currency, options = {})
+    def process_payment(kb_account_id, kb_payment_id, kb_payment_method_id, amount_in_cents, currency, call_context, options = {})
       # If the payment was already made, just return the status
       # TODO Should we set the Litle Id field to check for dups (https://www.litle.com/mc-secure/DupeChecking_V1.2.pdf)?
       litle_transaction = LitleTransaction.from_kb_payment_id(kb_payment_id) rescue nil
@@ -36,7 +36,7 @@ module Killbill::Litle
       response.to_payment_response
     end
 
-    def process_refund(kb_account_id, kb_payment_id, amount_in_cents, currency, options = {})
+    def process_refund(kb_account_id, kb_payment_id, amount_in_cents, currency, call_context, options = {})
       litle_transaction = LitleTransaction.find_candidate_transaction_for_refund(kb_payment_id, amount_in_cents)
 
       # Set a default report group
@@ -49,7 +49,7 @@ module Killbill::Litle
       response.to_refund_response
     end
 
-    def get_payment_info(kb_account_id, kb_payment_id, options = {})
+    def get_payment_info(kb_account_id, kb_payment_id, tenant_context, options = {})
       # We assume the payment is immutable in Litle and only look at our tables since there
       # doesn't seem to be a Litle API to fetch details for a given transaction.
       # TODO How can we support Authorization/Sale Recycling?
@@ -58,7 +58,7 @@ module Killbill::Litle
       litle_transaction.litle_response.to_payment_response
     end
 
-    def add_payment_method(kb_account_id, kb_payment_method_id, payment_method_props, set_default=true, options = {})
+    def add_payment_method(kb_account_id, kb_payment_method_id, payment_method_props, set_default, call_context, options = {})
       # Set a default report group
       options[:merchant] ||= report_group_for_account(kb_account_id)
 
@@ -70,15 +70,15 @@ module Killbill::Litle
       LitlePaymentMethod.create :kb_account_id => kb_account_id, :kb_payment_method_id => kb_payment_method_id, :litle_token => response.litle_token
     end
 
-    def delete_payment_method(kb_account_id, kb_payment_method_id, options = {})
+    def delete_payment_method(kb_account_id, kb_payment_method_id, call_context, options = {})
       LitlePaymentMethod.mark_as_deleted! kb_payment_method_id
     end
 
-    def get_payment_method_detail(kb_account_id, kb_payment_method_id, options = {})
+    def get_payment_method_detail(kb_account_id, kb_payment_method_id, tenant_context, options = {})
       LitlePaymentMethod.from_kb_payment_method_id(kb_payment_method_id).to_payment_method_response
     end
 
-    def get_payment_methods(kb_account_id, refresh_from_gateway = false, options = {})
+    def get_payment_methods(kb_account_id, refresh_from_gateway, call_context, options = {})
       LitlePaymentMethod.from_kb_account_id(kb_account_id).collect { |pm| pm.to_payment_method_response }
     end
 
@@ -95,7 +95,6 @@ module Killbill::Litle
     def report_group_for_currency(currency)
       "Report Group for #{currency}"
     end
-
 
     def get_token(kb_payment_method_id)
       LitlePaymentMethod.from_kb_payment_method_id(kb_payment_method_id).litle_token
