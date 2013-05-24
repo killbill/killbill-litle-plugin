@@ -3,8 +3,6 @@ require 'logger'
 
 ActiveMerchant::Billing::Base.mode = :test
 
-
-
 class KillbillApiWithFakeGetAccountById < Killbill::Plugin::KillbillApi
 
   def initialize(japi_proxy)

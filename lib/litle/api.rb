@@ -97,7 +97,7 @@ module Killbill::Litle
     end
 
     def report_group_for_currency(currency)
-      "Report Group for #{currency}"
+      "Report Group for #{currency.respond_to?(:enum) ? currency.enum : currency.to_s}"
     end
 
     def get_token(kb_payment_method_id)
