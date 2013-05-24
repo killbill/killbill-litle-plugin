@@ -88,6 +88,12 @@ describe Killbill::Litle::PaymentPlugin do
     response.test.should be_true
     response.success.should be_true
 
+    # Check we can retrieve the refund
+    refund_response = @plugin.get_refund_info pm.kb_account_id, kb_payment_id, @call_context
+    # Apparently, Litle returns positive amounts for refunds
+    refund_response.amount.should == amount_in_cents
+    refund_response.status.should == Killbill::Plugin::Model::PaymentPluginStatus.new(:PROCESSED)
+
     # Make sure we can charge again the same payment method
     second_amount_in_cents = 29471
     second_kb_payment_id = SecureRandom.uuid

@@ -36,6 +36,15 @@ module Killbill::Litle
       response.to_payment_response
     end
 
+    def get_payment_info(kb_account_id, kb_payment_id, tenant_context, options = {})
+      # We assume the payment is immutable in Litle and only look at our tables since there
+      # doesn't seem to be a Litle API to fetch details for a given transaction.
+      # TODO How can we support Authorization/Sale Recycling?
+      litle_transaction = LitleTransaction.from_kb_payment_id(kb_payment_id.to_s)
+
+      litle_transaction.litle_response.to_payment_response
+    end
+
     def process_refund(kb_account_id, kb_payment_id, amount_in_cents, currency, call_context, options = {})
       litle_transaction = LitleTransaction.find_candidate_transaction_for_refund(kb_payment_id.to_s, amount_in_cents)
 
@@ -49,13 +58,12 @@ module Killbill::Litle
       response.to_refund_response
     end
 
-    def get_payment_info(kb_account_id, kb_payment_id, tenant_context, options = {})
-      # We assume the payment is immutable in Litle and only look at our tables since there
+    def get_refund_info(kb_account_id, kb_payment_id, tenant_context, options = {})
+      # We assume the refund is immutable in Litle and only look at our tables since there
       # doesn't seem to be a Litle API to fetch details for a given transaction.
-      # TODO How can we support Authorization/Sale Recycling?
-      litle_transaction = LitleTransaction.from_kb_payment_id(kb_payment_id.to_s)
+      litle_transaction = LitleTransaction.refund_from_kb_payment_id(kb_payment_id.to_s)
 
-      litle_transaction.litle_response.to_payment_response
+      litle_transaction.litle_response.to_refund_response
     end
 
     def add_payment_method(kb_account_id, kb_payment_method_id, payment_method_props, set_default, call_context, options = {})
@@ -82,8 +90,16 @@ module Killbill::Litle
       LitlePaymentMethod.from_kb_payment_method_id(kb_payment_method_id.to_s).to_payment_method_response
     end
 
+    def set_default_payment_method(kb_account_id, kb_payment_method_id, call_context, options = {})
+      # No-op
+    end
+
     def get_payment_methods(kb_account_id, refresh_from_gateway, call_context, options = {})
       LitlePaymentMethod.from_kb_account_id(kb_account_id.to_s).collect { |pm| pm.to_payment_method_response }
+    end
+
+    def reset_payment_methods(kb_account_id, payment_methods)
+      # No-op
     end
 
     private
