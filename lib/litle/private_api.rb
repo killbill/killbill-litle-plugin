@@ -6,8 +6,12 @@ module Killbill::Litle
       litle_response = gateway.store paypage_registration_id, options
       response = save_response litle_response, :register_token
 
-      # Create the payment method (not associated to a Killbill payment method yet)
-      LitlePaymentMethod.create! :kb_account_id => kb_account_id, :kb_payment_method_id => nil, :litle_token => response.litle_token
+      if response.success
+        # Create the payment method (not associated to a Killbill payment method yet)
+        LitlePaymentMethod.create! :kb_account_id => kb_account_id, :kb_payment_method_id => nil, :litle_token => response.litle_token
+      else
+        raise response.message
+      end
     end
 
     private

@@ -67,7 +67,11 @@ module Killbill::Litle
       litle_response = @gateway.store token, options
       response = save_response_and_transaction litle_response, :add_payment_method
 
-      LitlePaymentMethod.create :kb_account_id => kb_account_id, :kb_payment_method_id => kb_payment_method_id, :litle_token => response.litle_token
+      if response.success
+        LitlePaymentMethod.create :kb_account_id => kb_account_id, :kb_payment_method_id => kb_payment_method_id, :litle_token => response.litle_token
+      else
+        raise response.message
+      end
     end
 
     def delete_payment_method(kb_account_id, kb_payment_method_id, call_context, options = {})
