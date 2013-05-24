@@ -14,24 +14,25 @@ end
 # http://127.0.0.1:9292/plugins/killbill-litle
 get '/plugins/killbill-litle' do
   locals = {
-    :secure_page_url => Killbill::Litle.config[:litle][:secure_page_url],
-    :paypage_id => Killbill::Litle.config[:litle][:paypage_id],
-    :kb_account_id => request.GET['kb_account_id'] || '1',
-    :merchant_txn_id => request.GET['merchant_txn_id'] || '1',
-    :order_id => request.GET['order_id'] || '1',
-    :report_group => request.GET['report_group'] || 'Default Report Group',
-    :success_page => params[:successPage] || '/plugins/killbill-litle/checkout',
-    :failure_page => params[:failurePage]
+      :secure_page_url => Killbill::Litle.config[:litle][:secure_page_url],
+      :paypage_id => Killbill::Litle.config[:litle][:paypage_id],
+      :kb_account_id => request.GET['kb_account_id'] || '1',
+      :merchant_txn_id => request.GET['merchant_txn_id'] || '1',
+      :order_id => request.GET['order_id'] || '1',
+      :report_group => request.GET['report_group'] || 'Default Report Group',
+      :success_page => params[:successPage] || '/plugins/killbill-litle/checkout',
+      :failure_page => params[:failurePage]
   }
   erb :paypage, :views => File.expand_path(File.dirname(__FILE__) + '/../views'), :locals => locals
 end
 
 post '/plugins/killbill-litle/checkout' do
-  data = request.body.read
+  kb_account_id = request.POST['kb_account_id']
+  response_paypage_registration_id = request.POST['response_paypage_registration_id']
 
-  halt 400, "kb_account_id and response_paypage_registration_id must be specified!" if data['kb_account_id'].blank? or data['response_paypage_registration_id'].blank?
+  halt 400, "kb_account_id and response_paypage_registration_id must be specified!" if kb_account_id.blank? or response_paypage_registration_id.blank?
 
-  pm = plugin.register_token! data['kb_account_id'], data['response_paypage_registration_id']
+  pm = plugin.register_token! kb_account_id, response_paypage_registration_id
   redirect "/plugins/killbill-litle/1.0/pms/#{pm.id}"
 end
 
