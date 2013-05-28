@@ -11,6 +11,30 @@ Requirements
 
 The plugin needs a database. The latest version of the schema can be found here: https://raw.github.com/killbill/killbill-litle-plugin/master/db/ddl.sql.
 
+Usage
+-----
+
+Go to http://127.0.0.1:8080/plugins/killbill-litle?kb_account_id=13d26090-b8d7-11e2-9e96-0800200c9a66 and enter your credit card information.
+
+Then, save the token in Kill Bill:
+
+```
+curl -v \
+     -X POST \
+     -H "Content-Type: application/json" \
+     -H "X-Killbill-CreatedBy: Web server" \
+     -H "X-Killbill-Reason: New account" \
+     --data-binary '{
+       "pluginName": "killbill-litle",
+       "pluginInfo": {
+         "properties": [{
+           "key": "paypageRegistrationId",
+           "value": "t3GER3BP3JHLASZe"
+         }]
+       }
+     }' \
+     "http://$HOST:8080/1.0/kb/accounts/13d26090-b8d7-11e2-9e96-0800200c9a66/paymentMethods?isDefault=true"
+```
 
 Configuration
 -------------
