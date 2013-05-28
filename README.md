@@ -14,7 +14,7 @@ The plugin needs a database. The latest version of the schema can be found here:
 Usage
 -----
 
-Go to http://127.0.0.1:8080/plugins/killbill-litle?kb_account_id=13d26090-b8d7-11e2-9e96-0800200c9a66 and enter your credit card information.
+Go to http://$HOST:8080/plugins/killbill-litle?kb_account_id=13d26090-b8d7-11e2-9e96-0800200c9a66 and enter your credit card information.
 
 Then, save the token in Kill Bill:
 
