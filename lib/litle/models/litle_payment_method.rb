@@ -23,8 +23,9 @@ module Killbill::Litle
       external_payment_method_id = litle_token
       # No concept of default payment method in Litle
       is_default = false
-      # No extra information is stored in Litle
+
       properties = []
+      properties << Killbill::Plugin::Model::PaymentMethodKVInfo.new(false, "token", litle_token)
 
       Killbill::Plugin::Model::PaymentMethodPlugin.new(external_payment_method_id, is_default, properties, "CreditCard", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil)
     end
