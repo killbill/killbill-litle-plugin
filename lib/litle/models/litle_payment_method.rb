@@ -28,5 +28,13 @@ module Killbill::Litle
 
       Killbill::Plugin::Model::PaymentMethodPlugin.new(external_payment_method_id, is_default, properties, "CreditCard", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil)
     end
+
+    def to_payment_method_info_response
+      external_payment_method_id = litle_token
+      # No concept of default payment method in Litle
+      is_default = false
+
+      Killbill::Plugin::Model::PaymentMethodInfoPlugin.new(kb_account_id, kb_payment_method_id, is_default, external_payment_method_id)
+    end
   end
 end
