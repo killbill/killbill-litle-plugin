@@ -16,7 +16,7 @@ Usage
 
 Go to http://$HOST:8080/plugins/killbill-litle?kb_account_id=13d26090-b8d7-11e2-9e96-0800200c9a66 and enter your credit card information.
 
-Then, save the token in Kill Bill:
+Then, save the token in Kill Bill (only `paypageRegistrationId` is required in the properties):
 
 ```
 curl -v \
@@ -27,10 +27,60 @@ curl -v \
      --data-binary '{
        "pluginName": "killbill-litle",
        "pluginInfo": {
-         "properties": [{
-           "key": "paypageRegistrationId",
-           "value": "t3GER3BP3JHLASZe"
-         }]
+         "properties": [
+           {
+             "key": "paypageRegistrationId",
+             "value": "t3GER3BP3JHLASZe"
+           },
+           {
+             "key": "ccFirstName",
+             "value": "John"
+           },
+           {
+             "key": "ccLastName",
+             "value": "Doe"
+           },
+           {
+             "key": "ccType",
+             "value": "VISA"
+           },
+           {
+             "key": "ccExpMonth",
+             "value": 12
+           },
+           {
+             "key": "ccExpYear",
+             "value": 2015
+           },
+           {
+             "key": "ccLast4",
+             "value": 1234
+           },
+           {
+             "key": "address1",
+             "value": "5, oakriu road"
+           },
+           {
+             "key": "address2",
+             "value": "apt. 298"
+           },
+           {
+             "key": "city",
+             "value": "Gdio Foia"
+           },
+           {
+             "key": "state",
+             "value": "FL"
+           },
+           {
+             "key": "zip",
+             "value": "49302"
+           },
+           {
+             "key": "country",
+             "value": "IFP"
+           }
+         ]
        }
      }' \
      "http://$HOST:8080/1.0/kb/accounts/13d26090-b8d7-11e2-9e96-0800200c9a66/paymentMethods?isDefault=true"
