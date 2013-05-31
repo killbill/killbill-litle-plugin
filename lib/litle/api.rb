@@ -71,12 +71,26 @@ module Killbill::Litle
       options[:merchant] ||= report_group_for_account(kb_account_id)
 
       # TODO Add support for real credit cards
-      token = (payment_method_props.properties.find { |kv| kv.key == 'paypageRegistrationId' }).value
+      token = find_value_from_payment_method_props payment_method_props, 'paypageRegistrationId'
       litle_response = @gateway.store token, options
       response = save_response_and_transaction litle_response, :add_payment_method
 
       if response.success
-        LitlePaymentMethod.create :kb_account_id => kb_account_id.to_s, :kb_payment_method_id => kb_payment_method_id.to_s, :litle_token => response.litle_token
+        LitlePaymentMethod.create :kb_account_id => kb_account_id.to_s,
+                                  :kb_payment_method_id => kb_payment_method_id.to_s,
+                                  :litle_token => response.litle_token,
+                                  :cc_first_name => find_value_from_payment_method_props(payment_method_props, 'ccFirstName'),
+                                  :cc_last_name => find_value_from_payment_method_props(payment_method_props, 'ccLastName'),
+                                  :cc_type => find_value_from_payment_method_props(payment_method_props, 'ccType'),
+                                  :cc_exp_month => find_value_from_payment_method_props(payment_method_props, 'ccExpMonth'),
+                                  :cc_exp_year => find_value_from_payment_method_props(payment_method_props, 'ccExpYear'),
+                                  :cc_last_4 => find_value_from_payment_method_props(payment_method_props, 'ccLast4'),
+                                  :address1 => find_value_from_payment_method_props(payment_method_props, 'address1'),
+                                  :address2 => find_value_from_payment_method_props(payment_method_props, 'address2'),
+                                  :city => find_value_from_payment_method_props(payment_method_props, 'city'),
+                                  :state => find_value_from_payment_method_props(payment_method_props, 'state'),
+                                  :zip => find_value_from_payment_method_props(payment_method_props, 'zip'),
+                                  :country => find_value_from_payment_method_props(payment_method_props, 'country')
       else
         raise response.message
       end
@@ -103,6 +117,11 @@ module Killbill::Litle
     end
 
     private
+
+    def find_value_from_payment_method_props(payment_method_props, key)
+      prop = (payment_method_props.properties.find { |kv| kv.key == key })
+      prop.nil? ? nil : prop.value
+    end
 
     def report_group_for_account(kb_account_id)
       account = @kb_apis.get_account_by_id(kb_account_id)

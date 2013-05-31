@@ -111,13 +111,55 @@ describe Killbill::Litle::PaymentPlugin do
 
     # Generate a token in Litle
     paypage_registration_id = '123456789012345678901324567890abcdefghi'
-    info = Killbill::Plugin::Model::PaymentMethodPlugin.new nil, nil, [Killbill::Plugin::Model::PaymentMethodKVInfo.new(false, "paypageRegistrationId", paypage_registration_id)], nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil
+    cc_first_name = 'John'
+    cc_last_name = 'Doe'
+    cc_type = 'VISA'
+    cc_exp_month = 12
+    cc_exp_year = 2015
+    cc_last_4 = 1234
+    address1 = '5, oakriu road'
+    address2 = 'apt. 298'
+    city = 'Gdio Foia'
+    state = 'FL'
+    zip = 49302
+    country = 'IFP'
+
+    properties = []
+    properties << Killbill::Plugin::Model::PaymentMethodKVInfo.new(false, 'paypageRegistrationId', paypage_registration_id)
+    properties << Killbill::Plugin::Model::PaymentMethodKVInfo.new(false, 'ccFirstName', cc_first_name)
+    properties << Killbill::Plugin::Model::PaymentMethodKVInfo.new(false, 'ccLastName', cc_last_name)
+    properties << Killbill::Plugin::Model::PaymentMethodKVInfo.new(false, 'ccType', cc_type)
+    properties << Killbill::Plugin::Model::PaymentMethodKVInfo.new(false, 'ccExpMonth', cc_exp_month)
+    properties << Killbill::Plugin::Model::PaymentMethodKVInfo.new(false, 'ccExpYear', cc_exp_year)
+    properties << Killbill::Plugin::Model::PaymentMethodKVInfo.new(false, 'ccLast4', cc_last_4)
+    properties << Killbill::Plugin::Model::PaymentMethodKVInfo.new(false, 'address1', address1)
+    properties << Killbill::Plugin::Model::PaymentMethodKVInfo.new(false, 'address2', address2)
+    properties << Killbill::Plugin::Model::PaymentMethodKVInfo.new(false, 'city', city)
+    properties << Killbill::Plugin::Model::PaymentMethodKVInfo.new(false, 'state', state)
+    properties << Killbill::Plugin::Model::PaymentMethodKVInfo.new(false, 'zip', zip)
+    properties << Killbill::Plugin::Model::PaymentMethodKVInfo.new(false, 'country', country)
+
+    info = Killbill::Plugin::Model::PaymentMethodPlugin.new nil, nil, properties, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil
     payment_method = @plugin.add_payment_method(kb_account_id, kb_payment_method_id, info, true, @call_context)
 
     pm = Killbill::Litle::LitlePaymentMethod.from_kb_payment_method_id kb_payment_method_id
+    pm.should == payment_method
     pm.kb_account_id.should == kb_account_id
     pm.kb_payment_method_id.should == kb_payment_method_id
     pm.litle_token.should_not be_nil
+    pm.cc_first_name.should == cc_first_name
+    pm.cc_last_name.should == cc_last_name
+    pm.cc_type.should == cc_type
+    pm.cc_exp_month.should == cc_exp_month
+    pm.cc_exp_year.should == cc_exp_year
+    pm.cc_last_4.should == cc_last_4
+    pm.address1.should == address1
+    pm.address2.should == address2
+    pm.city.should == city
+    pm.state.should == state
+    pm.zip.should == zip.to_s
+    pm.country.should == country
+
     pm
   end
 end
