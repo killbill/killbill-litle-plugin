@@ -1,7 +1,7 @@
 module Killbill::Litle
   class PaymentPlugin < Killbill::Plugin::Payment
     def start_plugin
-      Killbill::Litle.initialize! @logger, @conf_dir
+      Killbill::Litle.initialize! @logger, @conf_dir, @kb_apis
       @gateway = Killbill::Litle.gateway
 
       super

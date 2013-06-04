@@ -14,6 +14,14 @@ module Killbill::Litle
       end
     end
 
+    def get_currency(kb_account_id_s)
+      kb_account_id = Killbill::Plugin::Model::UUID.new(kb_account_id_s)
+      account = kb_apis.get_account_by_id(kb_account_id)
+      account.currency.enum
+    rescue Killbill::Plugin::JKillbillApi::APINotAvailableError
+      'USD'
+    end
+
     private
 
     def save_response(litle_response, api_call)
@@ -33,6 +41,11 @@ module Killbill::Litle
     def logger
       # The logger should have been configured when the plugin started
       Killbill::Litle.logger
+    end
+
+    def kb_apis
+      # The logger should have been configured when the plugin started
+      Killbill::Litle.kb_apis
     end
   end
 end
