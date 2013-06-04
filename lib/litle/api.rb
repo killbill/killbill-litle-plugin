@@ -123,12 +123,12 @@ module Killbill::Litle
           # Do litle_pm and payment_method_info_plugin represent the same Litle payment method?
           if litle_pm.external_payment_method_id == payment_method_info_plugin.external_payment_method_id
             # Do we already have a kb_payment_method_id?
-            if litle_pm.kb_payment_method_id == payment_method_info_plugin.payment_method_id
+            if litle_pm.kb_payment_method_id == payment_method_info_plugin.payment_method_id.to_s
               should_be_deleted = true
               break
             elsif litle_pm.kb_payment_method_id.nil?
               # We didn't have the kb_payment_method_id - update it
-              litle_pm.kb_payment_method_id = payment_method_info_plugin.payment_method_id
+              litle_pm.kb_payment_method_id = payment_method_info_plugin.payment_method_id.to_s
               should_be_deleted = litle_pm.save
               break
             # Otherwise the same token points to 2 different kb_payment_method_id. This should never happen,
@@ -142,8 +142,8 @@ module Killbill::Litle
 
       # The remaining elements in payment_methods are not in our table (this should never happen?!)
       payment_methods.each do |payment_method_info_plugin|
-        LitlePaymentMethod.create :kb_account_id => payment_method_info_plugin.account_id,
-                                  :kb_payment_method_id => payment_method_info_plugin.payment_method_id,
+        LitlePaymentMethod.create :kb_account_id => payment_method_info_plugin.account_id.to_s,
+                                  :kb_payment_method_id => payment_method_info_plugin.payment_method_id.to_s,
                                   :litle_token => payment_method_info_plugin.external_payment_method_id
       end
     end
