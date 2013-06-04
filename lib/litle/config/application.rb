@@ -23,7 +23,8 @@ get '/plugins/killbill-litle' do
   secure_page_url = Killbill::Litle.config[:litle][:secure_page_url]
   required_parameter! :secure_page_url, secure_page_url, 'is not configured'
 
-  currency = plugin.get_currency kb_account_id
+  # Allow currency override if needed
+  currency = request.GET['currency'] || plugin.get_currency(kb_account_id)
   paypage_id = Killbill::Litle.config[:litle][:paypage_id][currency.to_sym]
   required_parameter! :paypage_id, paypage_id, "is not configured for currency #{currency.to_sym}"
 
