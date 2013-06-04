@@ -98,7 +98,9 @@ The plugin expects a `litle.yml` configuration file containing the following:
   :username: 'your-username'
   # Optional, if you are using PayPage
   :secure_page_url: 'litle-secure-page-url'
-  :paypage_id: 'litle-paypage-id'
+  :paypage_id:
+    :USD: 'litle-paypage-id-USD'
+    :EUR: 'litle-paypage-id-EURO'
   :log_file: '/var/tmp/litle.log'
   # Switch to false for production
   :test: true
