@@ -16,6 +16,8 @@ module Killbill::Litle
                     :zip,
                     :country
 
+    alias_attribute :external_payment_method_id, :litle_token
+
     def self.from_kb_account_id(kb_account_id)
       find_all_by_kb_account_id_and_is_deleted(kb_account_id, false)
     end
@@ -34,12 +36,8 @@ module Killbill::Litle
     end
 
     def to_payment_method_response
-      external_payment_method_id = litle_token
-      # No concept of default payment method in Litle
-      is_default = false
-
       properties = []
-      properties << Killbill::Plugin::Model::PaymentMethodKVInfo.new(false, "token", litle_token)
+      properties << Killbill::Plugin::Model::PaymentMethodKVInfo.new(false, 'token', litle_token)
 
       Killbill::Plugin::Model::PaymentMethodPlugin.new(external_payment_method_id,
                                                        is_default,
@@ -60,11 +58,12 @@ module Killbill::Litle
     end
 
     def to_payment_method_info_response
-      external_payment_method_id = litle_token
-      # No concept of default payment method in Litle
-      is_default = false
-
       Killbill::Plugin::Model::PaymentMethodInfoPlugin.new(kb_account_id, kb_payment_method_id, is_default, external_payment_method_id)
+    end
+
+    def is_default
+      # No concept of default payment method in Litle
+      false
     end
 
     def cc_name
