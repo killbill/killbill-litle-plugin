@@ -1,5 +1,3 @@
-
-
 module Killbill::Litle
   class LitleResponse < ActiveRecord::Base
     has_one :litle_transaction
@@ -43,7 +41,7 @@ module Killbill::Litle
         # Litle seems to return the precision sometimes along with the txnId (e.g. 053499651324799+19)
         # And sometimes it adds a ;credit
         # TODO Figure out WTF is going on here
-        ("%f" % potential_litle_txn_id.split(';')[0].split('+')[0]).to_i
+        potential_litle_txn_id.to_s.split(';')[0].split('+')[0]
       end
     end
 

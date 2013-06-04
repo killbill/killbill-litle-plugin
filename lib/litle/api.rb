@@ -180,7 +180,10 @@ module Killbill::Litle
 
       if response.success and !kb_payment_id.blank? and !response.litle_txn_id.blank?
         # Record the transaction
-        transaction = response.create_litle_transaction!(:amount_in_cents => amount_in_cents, :api_call => api_call, :kb_payment_id => kb_payment_id.to_s, :litle_txn_id => response.litle_txn_id)
+        transaction = response.create_litle_transaction!(:amount_in_cents => amount_in_cents,
+                                                         :api_call => api_call,
+                                                         :kb_payment_id => kb_payment_id.to_s,
+                                                         :litle_txn_id => response.litle_txn_id)
         @logger.debug "Recorded transaction: #{transaction.inspect}"
       end
       response
