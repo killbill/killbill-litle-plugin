@@ -93,7 +93,9 @@ The plugin expects a `litle.yml` configuration file containing the following:
 
 ```
 :litle:
-  :merchant_id: 'your-merchant-id'
+  :merchant_id:
+    :USD: 'your-merchant-id-USD'  
+    :EUR: 'your-merchant-id-EURO'
   :password: 'your-password'
   :username: 'your-username'
   # Optional, if you are using PayPage
