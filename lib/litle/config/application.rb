@@ -45,13 +45,16 @@ end
 post '/plugins/killbill-litle/checkout' do
   kb_account_id = request.POST['kb_account_id']
   response_paypage_registration_id = request.POST['response_paypage_registration_id']
+  # Allow currency override if needed
+  currency = request.POST['currency'] || plugin.get_currency(kb_account_id)
 
   {
       :kb_account_id => kb_account_id,
+      :currency => currency,
       :response_paypage_registration_id => response_paypage_registration_id
   }.each { |k, v| required_parameter! k, v }
 
-  pm = plugin.register_token! kb_account_id, response_paypage_registration_id
+  pm = plugin.register_token! kb_account_id, currency, response_paypage_registration_id
   redirect "/plugins/killbill-litle/1.0/pms/#{pm.id}"
 end
 

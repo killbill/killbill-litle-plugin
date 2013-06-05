@@ -3,7 +3,7 @@ require 'logger'
 module Killbill::Litle
   mattr_reader :logger
   mattr_reader :config
-  mattr_reader :gateway
+  mattr_reader :gateways
   mattr_reader :kb_apis
   mattr_reader :initialized
   mattr_reader :test
@@ -17,8 +17,7 @@ module Killbill::Litle
     @@config.parse!
     @@test = @@config[:litle][:test]
 
-    @@gateway = Killbill::Litle::Gateway.instance
-    @@gateway.configure(@@config[:litle])
+    @@gateways = Killbill::Litle::Gateway.from_config(@@config[:litle])
 
     if defined?(JRUBY_VERSION)
       # See https://github.com/jruby/activerecord-jdbc-adapter/issues/302
@@ -29,5 +28,12 @@ module Killbill::Litle
     ActiveRecord::Base.establish_connection(@@config[:database])
 
     @@initialized = true
+  end
+
+  def self.gateway_for_currency(currency)
+    currency_sym = currency.respond_to?(:enum) ? currency.enum.upcase.to_sym : currency.to_s.upcase.to_sym
+    gateway = @@gateways[currency_sym]
+    raise "Gateway for #{currency} not configured!" if gateway.nil?
+    gateway
   end
 end

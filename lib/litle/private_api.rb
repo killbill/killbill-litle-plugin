@@ -2,8 +2,8 @@ module Killbill::Litle
   class PrivatePaymentPlugin
     include Singleton
 
-    def register_token!(kb_account_id, paypage_registration_id, options = {})
-      litle_response = gateway.store paypage_registration_id, options
+    def register_token!(kb_account_id, currency, paypage_registration_id, options = {})
+      litle_response = gateway(currency).store paypage_registration_id, options
       response = save_response litle_response, :register_token
 
       if response.success
@@ -33,9 +33,9 @@ module Killbill::Litle
       response
     end
 
-    def gateway
+    def gateway(currency)
       # The gateway should have been configured when the plugin started
-      Killbill::Litle::Gateway.instance
+      Killbill::Litle.gateway_for_currency(currency)
     end
 
     def logger

@@ -6,7 +6,8 @@ describe Killbill::Litle::PaymentPlugin do
       file = File.new(File.join(dir, 'litle.yml'), "w+")
       file.write(<<-eos)
 :litle:
-  :merchant_id: 'merchant_id'
+  :merchant_id:
+    :USD: 'merchant_id'
   :password: 'password'
 # As defined by spec_helper.rb
 :database:

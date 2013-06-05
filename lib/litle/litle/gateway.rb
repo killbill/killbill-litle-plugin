@@ -1,8 +1,6 @@
 module Killbill::Litle
   class Gateway
-    include Singleton
-
-    def configure(config)
+    def self.from_config(config)
       if config[:test]
         ActiveMerchant::Billing::Base.mode = :test
       end
@@ -12,9 +10,18 @@ module Killbill::Litle
         ActiveMerchant::Billing::LitleGateway.wiredump_device.sync = true
       end
 
-      @gateway = ActiveMerchant::Billing::LitleGateway.new({ :user => config[:username],
-                                                             :merchant_id => config[:merchant_id],
-                                                             :password => config[:password]
+      gateways = {}
+      config[:merchant_id].each do |currency, mid|
+        gateways[currency.upcase.to_sym] = Gateway.new(currency, config[:username], config[:password], mid)
+      end
+      gateways
+    end
+
+    def initialize(currency, user, password, merchant_id)
+      @currency = currency
+      @gateway = ActiveMerchant::Billing::LitleGateway.new({:user => user,
+                                                            :password => password,
+                                                            :merchant_id => merchant_id
                                                            })
     end
 

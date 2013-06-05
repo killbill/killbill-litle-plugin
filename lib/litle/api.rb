@@ -2,11 +2,10 @@ module Killbill::Litle
   class PaymentPlugin < Killbill::Plugin::Payment
     def start_plugin
       Killbill::Litle.initialize! @logger, @conf_dir, @kb_apis
-      @gateway = Killbill::Litle.gateway
 
       super
 
-      @logger.info "Killbill::Litle::PaymentPlugin started"
+      @logger.info 'Killbill::Litle::PaymentPlugin started'
     end
 
     # return DB connections to the Pool if required
@@ -30,7 +29,8 @@ module Killbill::Litle
       token = get_token(kb_payment_method_id)
 
       # Go to Litle
-      litle_response = @gateway.purchase amount_in_cents, ActiveMerchant::Billing::LitleGateway::LitleCardToken.new(:token => token), options
+      gateway = Killbill::Litle.gateway_for_currency(currency)
+      litle_response = gateway.purchase amount_in_cents, ActiveMerchant::Billing::LitleGateway::LitleCardToken.new(:token => token), options
       response = save_response_and_transaction litle_response, :charge, kb_payment_id, amount_in_cents
 
       response.to_payment_response
@@ -52,7 +52,8 @@ module Killbill::Litle
       options[:merchant] ||= report_group_for_currency(currency)
 
       # Go to Litle
-      litle_response = @gateway.credit amount_in_cents, litle_transaction.litle_txn_id, options
+      gateway = Killbill::Litle.gateway_for_currency(currency)
+      litle_response = gateway.credit amount_in_cents, litle_transaction.litle_txn_id, options
       response = save_response_and_transaction litle_response, :refund, kb_payment_id, amount_in_cents
 
       response.to_refund_response
@@ -72,7 +73,10 @@ module Killbill::Litle
 
       # TODO Add support for real credit cards
       token = find_value_from_payment_method_props payment_method_props, 'paypageRegistrationId'
-      litle_response = @gateway.store token, options
+
+      currency = account_currency(kb_account_id)
+      gateway = Killbill::Litle.gateway_for_currency(currency)
+      litle_response = gateway.store token, options
       response = save_response_and_transaction litle_response, :add_payment_method
 
       if response.success
@@ -156,11 +160,15 @@ module Killbill::Litle
     end
 
     def report_group_for_account(kb_account_id)
-      account = @kb_apis.get_account_by_id(kb_account_id)
-      currency = account.currency
+      currency = account_currency(kb_account_id)
       report_group_for_currency(currency)
     rescue Killbill::Plugin::JKillbillApi::APINotAvailableError
       "Default Report Group"
+    end
+
+    def account_currency(kb_account_id)
+      account = @kb_apis.get_account_by_id(kb_account_id)
+      account.currency
     end
 
     def report_group_for_currency(currency)
