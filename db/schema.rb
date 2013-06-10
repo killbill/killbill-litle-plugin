@@ -22,6 +22,9 @@ ActiveRecord::Schema.define(:version => 20130311153635) do
     t.datetime "updated_at",             :null => false
   end
 
+  add_index(:litle_payment_methods, :kb_account_id)
+  add_index(:litle_payment_methods, :kb_payment_method_id)
+
   create_table "litle_transactions", :force => true do |t|
     t.integer  "litle_response_id", :null => false
     t.string   "api_call",          :null => false
@@ -31,6 +34,8 @@ ActiveRecord::Schema.define(:version => 20130311153635) do
     t.datetime "created_at",        :null => false
     t.datetime "updated_at",        :null => false
   end
+
+  add_index(:litle_transactions, :kb_payment_id)
 
   create_table "litle_responses", :force => true do |t|
     t.string   "api_call",        :null => false
