@@ -15,6 +15,11 @@ helpers do
   end
 end
 
+after do
+  # return DB connections to the Pool if required
+  ActiveRecord::Base.connection.close
+end
+
 # http://127.0.0.1:9292/plugins/killbill-litle
 get '/plugins/killbill-litle' do
   kb_account_id = request.GET['kb_account_id']
