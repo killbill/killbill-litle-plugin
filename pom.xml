@@ -25,7 +25,7 @@
     <groupId>com.ning.killbill.ruby</groupId>
     <artifactId>litle-plugin</artifactId>
     <packaging>pom</packaging>
-    <version>1.2.0</version>
+    <version>1.2.1</version>
     <name>litle-plugin</name>
     <url>http://github.com/killbill/killbill-litle-plugin</url>
     <description>Plugin for accessing Litle as a payment gateway</description>
