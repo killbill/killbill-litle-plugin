@@ -14,11 +14,10 @@ module Killbill::Litle
       end
     end
 
-    def get_currency(kb_account_id_s)
-      kb_account_id = Killbill::Plugin::Model::UUID.new(kb_account_id_s)
+    def get_currency(kb_account_id)
       account = kb_apis.get_account_by_id(kb_account_id)
-      account.currency.enum
-    rescue Killbill::Plugin::JKillbillApi::APINotAvailableError
+      account.currency
+    rescue => e
       'USD'
     end
 
