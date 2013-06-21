@@ -37,28 +37,35 @@ module Killbill::Litle
 
     def to_payment_method_response
       properties = []
-      properties << Killbill::Plugin::Model::PaymentMethodKVInfo.new(false, 'token', litle_token)
+      properties << create_pm_kv_info('token', litle_token)
 
-      Killbill::Plugin::Model::PaymentMethodPlugin.new(external_payment_method_id,
-                                                       is_default,
-                                                       properties,
-                                                       nil,
-                                                       'CreditCard',
-                                                       cc_name,
-                                                       cc_type,
-                                                       cc_exp_month,
-                                                       cc_exp_year,
-                                                       cc_last_4,
-                                                       address1,
-                                                       address2,
-                                                       city,
-                                                       state,
-                                                       zip,
-                                                       country)
+      pm_plugin = Killbill::Plugin::Model::PaymentMethodPlugin.new
+      pm_plugin.external_payment_method_id = external_payment_method_id
+      pm_plugin.is_default_payment_method = is_default
+      pm_plugin.properties = properties
+      pm_plugin.type = 'CreditCard'
+      pm_plugin.cc_name = cc_name
+      pm_plugin.cc_type = cc_type
+      pm_plugin.cc_expiration_month = cc_exp_month
+      pm_plugin.cc_expiration_year = cc_exp_year
+      pm_plugin.cc_last4 = cc_last_4
+      pm_plugin.address1 = address1
+      pm_plugin.address2 = address2
+      pm_plugin.city = city
+      pm_plugin.state = state
+      pm_plugin.zip = zip
+      pm_plugin.country = country
+
+      pm_plugin
     end
 
     def to_payment_method_info_response
-      Killbill::Plugin::Model::PaymentMethodInfoPlugin.new(kb_account_id, kb_payment_method_id, is_default, external_payment_method_id)
+      pm_info_plugin = Killbill::Plugin::Model::PaymentMethodInfoPlugin.new
+      pm_info_plugin.account_id = kb_account_id
+      pm_info_plugin.payment_method_id = kb_payment_method_id
+      pm_info_plugin.is_default = is_default
+      pm_info_plugin.external_payment_method_id = external_payment_method_id
+      pm_info_plugin
     end
 
     def is_default
@@ -76,6 +83,15 @@ module Killbill::Litle
       else
         nil
       end
+    end
+
+    private
+
+    def create_pm_kv_info(key, value)
+      prop = Killbill::Plugin::Model::PaymentMethodKVInfo.new
+      prop.key = key
+      prop.value = value
+      prop
     end
   end
 end

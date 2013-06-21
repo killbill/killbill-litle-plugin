@@ -31,7 +31,7 @@ module Killbill::Litle
   end
 
   def self.gateway_for_currency(currency)
-    currency_sym = currency.respond_to?(:enum) ? currency.enum.upcase.to_sym : currency.to_s.upcase.to_sym
+    currency_sym = currency.to_s.upcase.to_sym
     gateway = @@gateways[currency_sym]
     raise "Gateway for #{currency} not configured!" if gateway.nil?
     gateway
