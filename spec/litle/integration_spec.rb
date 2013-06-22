@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'logger'
 
 ActiveMerchant::Billing::Base.mode = :test
 
@@ -54,12 +53,12 @@ describe Killbill::Litle::PaymentPlugin do
 
   it 'should be able to charge and refund' do
     pm = create_payment_method
-    amount_in_cents = 10000
+    amount = BigDecimal.new("100")
     currency = 'USD'
     kb_payment_id = SecureRandom.uuid
 
-    payment_response = @plugin.process_payment pm.kb_account_id, kb_payment_id, pm.kb_payment_method_id, amount_in_cents, currency
-    payment_response.amount.should == amount_in_cents
+    payment_response = @plugin.process_payment pm.kb_account_id, kb_payment_id, pm.kb_payment_method_id, amount, currency
+    payment_response.amount.should == amount
     payment_response.status.should == :PROCESSED
 
     # Verify our table directly
@@ -70,14 +69,14 @@ describe Killbill::Litle::PaymentPlugin do
     response.params_litleonelineresponse_saleresponse_order_id.should == Killbill::Litle::Utils.compact_uuid(kb_payment_id)
 
     payment_response = @plugin.get_payment_info pm.kb_account_id, kb_payment_id
-    payment_response.amount.should == amount_in_cents
+    payment_response.amount.should == amount
     payment_response.status.should == :PROCESSED
 
     # Check we cannot refund an amount greater than the original charge
-    lambda { @plugin.process_refund pm.kb_account_id, kb_payment_id, amount_in_cents + 1, currency }.should raise_error RuntimeError
+    lambda { @plugin.process_refund pm.kb_account_id, kb_payment_id, amount + 1, currency }.should raise_error RuntimeError
 
-    refund_response = @plugin.process_refund pm.kb_account_id, kb_payment_id, amount_in_cents, currency
-    refund_response.amount.should == amount_in_cents
+    refund_response = @plugin.process_refund pm.kb_account_id, kb_payment_id, amount, currency
+    refund_response.amount.should == amount
     refund_response.status.should == :PROCESSED
 
     # Verify our table directly
@@ -88,15 +87,15 @@ describe Killbill::Litle::PaymentPlugin do
     # Check we can retrieve the refund
     refund_response = @plugin.get_refund_info pm.kb_account_id, kb_payment_id
     # Apparently, Litle returns positive amounts for refunds
-    refund_response.amount.should == amount_in_cents
+    refund_response.amount.should == amount
     refund_response.status.should == :PROCESSED
 
     # Make sure we can charge again the same payment method
-    second_amount_in_cents = 29471
+    second_amount = BigDecimal.new("294.71")
     second_kb_payment_id = SecureRandom.uuid
 
-    payment_response = @plugin.process_payment pm.kb_account_id, second_kb_payment_id, pm.kb_payment_method_id, second_amount_in_cents, currency
-    payment_response.amount.should == second_amount_in_cents
+    payment_response = @plugin.process_payment pm.kb_account_id, second_kb_payment_id, pm.kb_payment_method_id, second_amount, currency
+    payment_response.amount.should == second_amount
     payment_response.status.should == :PROCESSED
   end
 

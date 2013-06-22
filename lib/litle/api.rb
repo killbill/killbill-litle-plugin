@@ -13,7 +13,9 @@ module Killbill::Litle
       ActiveRecord::Base.connection.close
     end
 
-    def process_payment(kb_account_id, kb_payment_id, kb_payment_method_id, amount_in_cents, currency, call_context = nil, options = {})
+    def process_payment(kb_account_id, kb_payment_id, kb_payment_method_id, amount, currency, call_context = nil, options = {})
+      amount_in_cents = (amount * 100).to_i
+
       # If the payment was already made, just return the status
       # TODO Should we set the Litle Id field to check for dups (https://www.litle.com/mc-secure/DupeChecking_V1.2.pdf)?
       litle_transaction = LitleTransaction.from_kb_payment_id(kb_payment_id) rescue nil
@@ -45,7 +47,9 @@ module Killbill::Litle
       litle_transaction.litle_response.to_payment_response
     end
 
-    def process_refund(kb_account_id, kb_payment_id, amount_in_cents, currency, call_context = nil, options = {})
+    def process_refund(kb_account_id, kb_payment_id, amount, currency, call_context = nil, options = {})
+      amount_in_cents = (amount * 100).to_i
+
       litle_transaction = LitleTransaction.find_candidate_transaction_for_refund(kb_payment_id, amount_in_cents)
 
       # Set a default report group
