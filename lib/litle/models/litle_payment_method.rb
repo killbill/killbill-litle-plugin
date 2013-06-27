@@ -37,7 +37,18 @@ module Killbill::Litle
 
     def to_payment_method_response
       properties = []
-      properties << create_pm_kv_info('token', litle_token)
+      properties << create_pm_kv_info('token', external_payment_method_id)
+      properties << create_pm_kv_info('ccName', cc_name)
+      properties << create_pm_kv_info('ccType', cc_type)
+      properties << create_pm_kv_info('ccExpirationMonth', cc_exp_month)
+      properties << create_pm_kv_info('ccExpirationYear', cc_exp_year)
+      properties << create_pm_kv_info('ccLast4', cc_last_4)
+      properties << create_pm_kv_info('address1', address1)
+      properties << create_pm_kv_info('address2', address2)
+      properties << create_pm_kv_info('city', city)
+      properties << create_pm_kv_info('state', state)
+      properties << create_pm_kv_info('zip', zip)
+      properties << create_pm_kv_info('country', country)
 
       pm_plugin = Killbill::Plugin::Model::PaymentMethodPlugin.new
       pm_plugin.external_payment_method_id = external_payment_method_id
