@@ -1,5 +1,6 @@
-1.4.1
+1.5.0
     Add additional properties in PaymentMethodPlugin
+    Implement search
 
 1.4.0
     Update to killbill 1.2.0
