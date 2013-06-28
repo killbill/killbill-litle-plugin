@@ -35,6 +35,26 @@ module Killbill::Litle
       payment_method.save!
     end
 
+    def self.search(search_key)
+      search_columns = [
+                         :litle_token,
+                         :cc_first_name,
+                         :cc_last_name,
+                         :cc_type,
+                         :cc_exp_month,
+                         :cc_exp_year,
+                         :cc_last_4,
+                         :address1,
+                         :address2,
+                         :city,
+                         :state,
+                         :zip,
+                         :country
+                       ]
+      query = search_columns.map(&:to_s).join(' like ? or ') + ' like ?'
+      where(query, *search_columns.map { |e| "%#{search_key}%" })
+    end
+
     def to_payment_method_response
       properties = []
       properties << create_pm_kv_info('token', external_payment_method_id)

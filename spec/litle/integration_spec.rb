@@ -45,6 +45,10 @@ describe Killbill::Litle::PaymentPlugin do
     pm_details = @plugin.get_payment_method_detail(pm.kb_account_id, pm.kb_payment_method_id)
     pm_details.external_payment_method_id.should == pm.litle_token
 
+    pms_found = @plugin.search pm.cc_last_4
+    pms_found.size.should == 1
+    pms_found.first.external_payment_method_id.should == pm_details.external_payment_method_id
+
     @plugin.delete_payment_method(pm.kb_account_id, pm.kb_payment_method_id)
 
     @plugin.get_payment_methods(pm.kb_account_id).size.should == 0

@@ -156,6 +156,10 @@ module Killbill::Litle
       end
     end
 
+    def search(search_key, call_context = nil, options = {})
+      LitlePaymentMethod.search(search_key).map(&:to_payment_method_response)
+    end
+
     private
 
     def find_value_from_payment_method_props(payment_method_props, key)
