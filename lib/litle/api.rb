@@ -27,12 +27,12 @@ module Killbill::Litle
 
       # Set a default report group
       options[:merchant] ||= report_group_for_currency(currency)
-      # Retrieve the Litle token
-      token = get_token(kb_payment_method_id)
+      # Retrieve the Litle payment method
+      litle_pm = LitlePaymentMethod.from_kb_payment_method_id(kb_payment_method_id)
 
       # Go to Litle
       gateway = Killbill::Litle.gateway_for_currency(currency)
-      litle_response = gateway.purchase amount_in_cents, ActiveMerchant::Billing::LitleGateway::LitleCardToken.new(:token => token), options
+      litle_response = gateway.purchase amount_in_cents, litle_pm.to_litle_card_token, options
       response = save_response_and_transaction litle_response, :charge, kb_payment_id, amount_in_cents
 
       response.to_payment_response
@@ -181,10 +181,6 @@ module Killbill::Litle
 
     def report_group_for_currency(currency)
       "Report Group for #{currency.to_s}"
-    end
-
-    def get_token(kb_payment_method_id)
-      LitlePaymentMethod.from_kb_payment_method_id(kb_payment_method_id).litle_token
     end
 
     def save_response_and_transaction(litle_response, api_call, kb_payment_id=nil, amount_in_cents=0)

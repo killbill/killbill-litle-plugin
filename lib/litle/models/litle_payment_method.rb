@@ -116,6 +116,10 @@ module Killbill::Litle
       end
     end
 
+    def to_litle_card_token
+      ActiveMerchant::Billing::LitleGateway::LitleCardToken.new(:token => litle_token, :month => cc_exp_month, :year => cc_exp_year)
+    end
+
     private
 
     def create_pm_kv_info(key, value)

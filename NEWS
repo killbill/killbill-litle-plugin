@@ -1,6 +1,7 @@
 1.5.0
     Add additional properties in PaymentMethodPlugin
     Implement search
+    Fix process_payment implementation (pass expiration date to Litle)
 
 1.4.0
     Update to killbill 1.2.0
