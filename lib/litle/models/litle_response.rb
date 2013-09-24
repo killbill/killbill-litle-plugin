@@ -95,8 +95,8 @@ module Killbill::Litle
       else
         amount_in_cents = litle_transaction.amount_in_cents
         created_date = litle_transaction.created_at
-        first_payment_reference_id = litle_transaction.litle_txn_id
-        second_payment_reference_id = litle_transaction.id.to_s
+        first_payment_reference_id = params_litleonelineresponse_saleresponse_id
+        second_payment_reference_id = litle_transaction.litle_txn_id
       end
 
       effective_date = params_litleonelineresponse_saleresponse_response_time || created_date
