@@ -71,6 +71,7 @@ describe Killbill::Litle::PaymentPlugin do
     response.success.should be_true
     response.message.should == 'Approved'
     response.params_litleonelineresponse_saleresponse_order_id.should == Killbill::Litle::Utils.compact_uuid(kb_payment_id)
+    response.params_litleonelineresponse_saleresponse_customer_id.should == pm.kb_account_id
 
     payment_response = @plugin.get_payment_info pm.kb_account_id, kb_payment_id
     payment_response.amount.should == amount

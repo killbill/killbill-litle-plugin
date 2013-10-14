@@ -25,6 +25,9 @@ module Killbill::Litle
       # Note! The field is limited to 25 chars, so we convert the UUID (in hex) to base64
       options[:order_id] ||= Utils.compact_uuid kb_payment_id
 
+      # Set the account identifier to the kb_account_id
+      options[:customer] ||= kb_account_id
+
       # Set a default report group
       options[:merchant] ||= report_group_for_currency(currency)
       # Retrieve the Litle payment method

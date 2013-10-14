@@ -1,3 +1,6 @@
+1.8.2
+    Populate customer id for payments (see killbill/killbill-litle-plugin#1)
+
 1.8.1
     Fix first_reference_id to support AmEx transactions (see killbill/killbill-analytics-plugin#10)
 
