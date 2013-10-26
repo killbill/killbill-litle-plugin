@@ -41,26 +41,10 @@ get '/plugins/killbill-litle' do
       :merchant_txn_id => request.GET['merchant_txn_id'] || '1',
       :order_id => request.GET['order_id'] || '1',
       :report_group => request.GET['report_group'] || 'Default Report Group',
-      :success_page => params[:successPage] || '/plugins/killbill-litle/checkout',
+      :success_page => params[:successPage],
       :failure_page => params[:failurePage]
   }
   erb :paypage, :views => File.expand_path(File.dirname(__FILE__) + '/../views'), :locals => locals
-end
-
-post '/plugins/killbill-litle/checkout' do
-  kb_account_id = request.POST['kb_account_id']
-  response_paypage_registration_id = request.POST['response_paypage_registration_id']
-  # Allow currency override if needed
-  currency = request.POST['currency'] || plugin.get_currency(kb_account_id)
-
-  {
-      :kb_account_id => kb_account_id,
-      :currency => currency,
-      :response_paypage_registration_id => response_paypage_registration_id
-  }.each { |k, v| required_parameter! k, v }
-
-  pm = plugin.register_token! kb_account_id, currency, response_paypage_registration_id
-  redirect "/plugins/killbill-litle/1.0/pms/#{pm.id}"
 end
 
 # curl -v http://127.0.0.1:9292/plugins/killbill-litle/1.0/pms/1
