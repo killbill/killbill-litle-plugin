@@ -1,5 +1,7 @@
 1.9.0
     Update to latest killbill (1.7.1)
+    Add pagination support for search
+    Improve search algorithm
 
 1.8.2
     Populate customer id for payments (see killbill/killbill-litle-plugin#1)

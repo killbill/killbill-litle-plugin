@@ -35,24 +35,57 @@ module Killbill::Litle
       payment_method.save!
     end
 
-    def self.search(search_key)
-      search_columns = [
-                         :litle_token,
-                         :cc_first_name,
-                         :cc_last_name,
-                         :cc_type,
-                         :cc_exp_month,
-                         :cc_exp_year,
-                         :cc_last_4,
-                         :address1,
-                         :address2,
-                         :city,
-                         :state,
-                         :zip,
-                         :country
-                       ]
-      query = search_columns.map(&:to_s).join(' like ? or ') + ' like ?'
-      where(query, *search_columns.map { |e| "%#{search_key}%" })
+    # VisibleForTesting
+    def self.search_query(search_key, offset = nil, limit = nil)
+      t = self.arel_table
+
+      # Exact match for litle_token, cc_type, cc_exp_month, cc_exp_year, cc_last_4, state and zip, partial match for the reset
+      where_clause =     t[:litle_token].eq(search_key)
+                     .or(t[:cc_type].eq(search_key))
+                     .or(t[:state].eq(search_key))
+                     .or(t[:zip].eq(search_key))
+                     .or(t[:cc_first_name].matches("%#{search_key}%"))
+                     .or(t[:cc_last_name].matches("%#{search_key}%"))
+                     .or(t[:address1].matches("%#{search_key}%"))
+                     .or(t[:address2].matches("%#{search_key}%"))
+                     .or(t[:city].matches("%#{search_key}%"))
+                     .or(t[:country].matches("%#{search_key}%"))
+
+      if search_key.is_a? Numeric
+        where_clause = where_clause.or(t[:cc_exp_month].eq(search_key))
+                                   .or(t[:cc_exp_year].eq(search_key))
+                                   .or(t[:cc_last_4].eq(search_key))
+      end
+
+      query = t.where(where_clause)
+               .order(t[:id])
+
+      if offset.blank? and limit.blank?
+        # true is for count distinct
+        query.project(t[:id].count(true))
+      else
+        query.skip(offset) unless offset.blank?
+        query.take(limit) unless limit.blank?
+        query.project(t[Arel.star])
+        # Not chainable
+        query.distinct
+      end
+      query
+    end
+
+    def self.search(search_key, offset = 0, limit = 100)
+      pagination = Killbill::Plugin::Model::Pagination.new
+      pagination.current_offset = offset
+      pagination.total_nb_records = self.count_by_sql(self.search_query(search_key))
+      pagination.max_nb_records = self.count
+      pagination.next_offset = (!pagination.total_nb_records.nil? && offset + limit >= pagination.total_nb_records) ? nil : offset + limit
+      # Reduce the limit if the specified value is larger than the number of records
+      actual_limit = [pagination.max_nb_records, limit].min
+      pagination.iterator = StreamyResultSet.new(actual_limit) do |offset,limit|
+        self.find_by_sql(self.search_query(search_key, offset, limit))
+            .map(&:to_payment_method_response)
+      end
+      pagination
     end
 
     def to_payment_method_response

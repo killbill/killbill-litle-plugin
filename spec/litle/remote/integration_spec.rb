@@ -46,6 +46,7 @@ describe Killbill::Litle::PaymentPlugin do
     pm_details.external_payment_method_id.should == pm.litle_token
 
     pms_found = @plugin.search_payment_methods pm.cc_last_4
+    pms_found = pms_found.iterator.to_a
     pms_found.size.should == 1
     pms_found.first.external_payment_method_id.should == pm_details.external_payment_method_id
 
