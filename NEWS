@@ -1,3 +1,6 @@
+1.9.1
+    Search implementation bugfix
+
 1.9.0
     Update to latest killbill (1.7.1)
     Add pagination support for search

@@ -51,7 +51,8 @@ module Killbill::Litle
                      .or(t[:city].matches("%#{search_key}%"))
                      .or(t[:country].matches("%#{search_key}%"))
 
-      if search_key.is_a? Numeric
+      # Coming from Kill Bill, search_key will always be a String. Check to see if it represents a numeric for numeric-only fields
+      if search_key.is_a?(Numeric) or search_key.to_s =~ /\A[-+]?[0-9]*\.?[0-9]+\Z/
         where_clause = where_clause.or(t[:cc_exp_month].eq(search_key))
                                    .or(t[:cc_exp_year].eq(search_key))
                                    .or(t[:cc_last_4].eq(search_key))

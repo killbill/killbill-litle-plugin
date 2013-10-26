@@ -7,12 +7,14 @@ describe Killbill::Litle::LitlePaymentMethod do
 
   it 'should generate the right SQL query' do
     # Check count query (search query numeric)
-    expected_query = "SELECT COUNT(DISTINCT \"litle_payment_methods\".\"id\") FROM \"litle_payment_methods\"  WHERE ((((((((((((\"litle_payment_methods\".\"litle_token\" = 1234 OR \"litle_payment_methods\".\"cc_type\" = 1234) OR \"litle_payment_methods\".\"state\" = 1234) OR \"litle_payment_methods\".\"zip\" = 1234) OR \"litle_payment_methods\".\"cc_first_name\" LIKE '%1234%') OR \"litle_payment_methods\".\"cc_last_name\" LIKE '%1234%') OR \"litle_payment_methods\".\"address1\" LIKE '%1234%') OR \"litle_payment_methods\".\"address2\" LIKE '%1234%') OR \"litle_payment_methods\".\"city\" LIKE '%1234%') OR \"litle_payment_methods\".\"country\" LIKE '%1234%') OR \"litle_payment_methods\".\"cc_exp_month\" = 1234) OR \"litle_payment_methods\".\"cc_exp_year\" = 1234) OR \"litle_payment_methods\".\"cc_last_4\" = 1234) ORDER BY \"litle_payment_methods\".\"id\""
-    Killbill::Litle::LitlePaymentMethod.search_query(1234).to_sql.should == expected_query
+    expected_query = "SELECT COUNT(DISTINCT \"litle_payment_methods\".\"id\") FROM \"litle_payment_methods\"  WHERE ((((((((((((\"litle_payment_methods\".\"litle_token\" = '1234' OR \"litle_payment_methods\".\"cc_type\" = '1234') OR \"litle_payment_methods\".\"state\" = '1234') OR \"litle_payment_methods\".\"zip\" = '1234') OR \"litle_payment_methods\".\"cc_first_name\" LIKE '%1234%') OR \"litle_payment_methods\".\"cc_last_name\" LIKE '%1234%') OR \"litle_payment_methods\".\"address1\" LIKE '%1234%') OR \"litle_payment_methods\".\"address2\" LIKE '%1234%') OR \"litle_payment_methods\".\"city\" LIKE '%1234%') OR \"litle_payment_methods\".\"country\" LIKE '%1234%') OR \"litle_payment_methods\".\"cc_exp_month\" = 1234) OR \"litle_payment_methods\".\"cc_exp_year\" = 1234) OR \"litle_payment_methods\".\"cc_last_4\" = 1234) ORDER BY \"litle_payment_methods\".\"id\""
+    # Note that Kill Bill will pass a String, even for numeric types
+    Killbill::Litle::LitlePaymentMethod.search_query('1234').to_sql.should == expected_query
 
     # Check query with results (search query numeric)
-    expected_query = "SELECT  DISTINCT \"litle_payment_methods\".* FROM \"litle_payment_methods\"  WHERE ((((((((((((\"litle_payment_methods\".\"litle_token\" = 1234 OR \"litle_payment_methods\".\"cc_type\" = 1234) OR \"litle_payment_methods\".\"state\" = 1234) OR \"litle_payment_methods\".\"zip\" = 1234) OR \"litle_payment_methods\".\"cc_first_name\" LIKE '%1234%') OR \"litle_payment_methods\".\"cc_last_name\" LIKE '%1234%') OR \"litle_payment_methods\".\"address1\" LIKE '%1234%') OR \"litle_payment_methods\".\"address2\" LIKE '%1234%') OR \"litle_payment_methods\".\"city\" LIKE '%1234%') OR \"litle_payment_methods\".\"country\" LIKE '%1234%') OR \"litle_payment_methods\".\"cc_exp_month\" = 1234) OR \"litle_payment_methods\".\"cc_exp_year\" = 1234) OR \"litle_payment_methods\".\"cc_last_4\" = 1234) ORDER BY \"litle_payment_methods\".\"id\" LIMIT 10 OFFSET 0"
-    Killbill::Litle::LitlePaymentMethod.search_query(1234, 0, 10).to_sql.should == expected_query
+    expected_query = "SELECT  DISTINCT \"litle_payment_methods\".* FROM \"litle_payment_methods\"  WHERE ((((((((((((\"litle_payment_methods\".\"litle_token\" = '1234' OR \"litle_payment_methods\".\"cc_type\" = '1234') OR \"litle_payment_methods\".\"state\" = '1234') OR \"litle_payment_methods\".\"zip\" = '1234') OR \"litle_payment_methods\".\"cc_first_name\" LIKE '%1234%') OR \"litle_payment_methods\".\"cc_last_name\" LIKE '%1234%') OR \"litle_payment_methods\".\"address1\" LIKE '%1234%') OR \"litle_payment_methods\".\"address2\" LIKE '%1234%') OR \"litle_payment_methods\".\"city\" LIKE '%1234%') OR \"litle_payment_methods\".\"country\" LIKE '%1234%') OR \"litle_payment_methods\".\"cc_exp_month\" = 1234) OR \"litle_payment_methods\".\"cc_exp_year\" = 1234) OR \"litle_payment_methods\".\"cc_last_4\" = 1234) ORDER BY \"litle_payment_methods\".\"id\" LIMIT 10 OFFSET 0"
+    # Note that Kill Bill will pass a String, even for numeric types
+    Killbill::Litle::LitlePaymentMethod.search_query('1234', 0, 10).to_sql.should == expected_query
 
     # Check count query (search query string)
     expected_query = "SELECT COUNT(DISTINCT \"litle_payment_methods\".\"id\") FROM \"litle_payment_methods\"  WHERE (((((((((\"litle_payment_methods\".\"litle_token\" = 'XXX' OR \"litle_payment_methods\".\"cc_type\" = 'XXX') OR \"litle_payment_methods\".\"state\" = 'XXX') OR \"litle_payment_methods\".\"zip\" = 'XXX') OR \"litle_payment_methods\".\"cc_first_name\" LIKE '%XXX%') OR \"litle_payment_methods\".\"cc_last_name\" LIKE '%XXX%') OR \"litle_payment_methods\".\"address1\" LIKE '%XXX%') OR \"litle_payment_methods\".\"address2\" LIKE '%XXX%') OR \"litle_payment_methods\".\"city\" LIKE '%XXX%') OR \"litle_payment_methods\".\"country\" LIKE '%XXX%') ORDER BY \"litle_payment_methods\".\"id\""
@@ -45,8 +47,9 @@ describe Killbill::Litle::LitlePaymentMethod do
     do_search('foo').size.should == 0
     do_search(pm.litle_token).size.should == 1
     do_search('ccType').size.should == 1
-    # Exact match on ly for cc_last_4
-    do_search(123).size.should == 0
+    # Exact match only for cc_last_4
+    do_search('123').size.should == 0
+    do_search('1234').size.should == 1
     # Test partial match
     do_search('address').size.should == 1
     do_search('Name').size.should == 1
@@ -71,8 +74,9 @@ describe Killbill::Litle::LitlePaymentMethod do
     do_search(pm.litle_token).size.should == 1
     do_search(pm2.litle_token).size.should == 1
     do_search('ccType').size.should == 2
-    # Exact match on ly for cc_last_4
-    do_search(123).size.should == 0
+    # Exact match only for cc_last_4
+    do_search('123').size.should == 0
+    do_search('1234').size.should == 2
     # Test partial match
     do_search('cc').size.should == 2
     do_search('address').size.should == 2
