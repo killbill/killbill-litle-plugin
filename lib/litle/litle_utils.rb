@@ -16,7 +16,9 @@ module Killbill::Litle
 
     def self.unpack_uuid(base62_uuid)
       as_hex = base62_uuid.split(//).inject(0) { |i,e| i*62 + BASE62.index(e[0]) }
-      ("%x" % as_hex).insert(8, "-").insert(13, "-").insert(18, "-").insert(23, "-")
+      no_hyphens = "%x" % as_hex
+      no_hyphens = '0' * (32 - no_hyphens.size) + no_hyphens
+      no_hyphens.insert(8, "-").insert(13, "-").insert(18, "-").insert(23, "-")
     end
   end
 
