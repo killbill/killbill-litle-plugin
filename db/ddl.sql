@@ -21,7 +21,7 @@ CREATE TABLE `litle_payment_methods` (
   PRIMARY KEY (`id`),
   KEY `index_litle_payment_methods_on_kb_account_id` (`kb_account_id`),
   KEY `index_litle_payment_methods_on_kb_payment_method_id` (`kb_payment_method_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_bin;
 
 CREATE TABLE `litle_transactions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -34,7 +34,7 @@ CREATE TABLE `litle_transactions` (
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `index_litle_transactions_on_kb_payment_id` (`kb_payment_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_bin;
 
 CREATE TABLE `litle_responses` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -67,4 +67,4 @@ CREATE TABLE `litle_responses` (
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_bin;
