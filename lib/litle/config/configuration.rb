@@ -17,6 +17,8 @@ module Killbill::Litle
     @@config.parse!
     @@test = @@config[:litle][:test]
 
+    @@logger.log_level = Logger::DEBUG if (@@config[:logger] || {})[:debug]
+
     @@gateways = Killbill::Litle::Gateway.from_config(@@config[:litle])
 
     if defined?(JRUBY_VERSION)
@@ -26,6 +28,7 @@ module Killbill::Litle
     end
 
     ActiveRecord::Base.establish_connection(@@config[:database])
+    ActiveRecord::Base.logger = @@logger
 
     @@initialized = true
   end
