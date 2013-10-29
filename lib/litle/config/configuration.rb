@@ -4,6 +4,7 @@ module Killbill::Litle
   mattr_reader :logger
   mattr_reader :config
   mattr_reader :gateways
+  mattr_reader :currency_conversions
   mattr_reader :kb_apis
   mattr_reader :initialized
   mattr_reader :test
@@ -21,6 +22,8 @@ module Killbill::Litle
 
     @@gateways = Killbill::Litle::Gateway.from_config(@@config[:litle])
 
+    @@currency_conversions = @@config[:currency_conversions]
+
     if defined?(JRUBY_VERSION)
       # See https://github.com/jruby/activerecord-jdbc-adapter/issues/302
       require 'jdbc/mysql'
@@ -32,6 +35,12 @@ module Killbill::Litle
 
     @@initialized = true
   end
+
+  def self.converted_currency(currency)
+    currency_sym = currency.to_s.upcase.to_sym
+    @@currency_conversions && @@currency_conversions[currency_sym]
+  end
+
 
   def self.gateway_for_currency(currency)
     currency_sym = currency.to_s.upcase.to_sym

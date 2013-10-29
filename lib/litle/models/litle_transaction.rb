@@ -1,7 +1,7 @@
 module Killbill::Litle
   class LitleTransaction < ActiveRecord::Base
     belongs_to :litle_response
-    attr_accessible :amount_in_cents, :api_call, :kb_payment_id, :litle_txn_id
+    attr_accessible :amount_in_cents, :currency, :api_call, :kb_payment_id, :litle_txn_id
 
     def self.from_kb_payment_id(kb_payment_id)
       single_transaction_from_kb_payment_id :charge, kb_payment_id
