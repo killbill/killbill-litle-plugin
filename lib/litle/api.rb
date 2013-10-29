@@ -33,7 +33,6 @@ module Killbill::Litle
       # Retrieve the Litle payment method
       litle_pm = LitlePaymentMethod.from_kb_payment_method_id(kb_payment_method_id)
 
-
       # Check for currency conversion
       converted = convert_amount_currency_if_required(amount_in_cents, currency)
 
@@ -45,29 +44,6 @@ module Killbill::Litle
       response.to_payment_response
     end
 
-
-    def convert_amount_currency_if_required(input_amount, input_currency, currency_conversion_date)
-
-      converted_currency = Killbill::Litle.converted_currency(input_currency)
-      return [input_amount, input_currency] if converted_currency.nil?
-
-
-      currency_conversion = @kb_apis.currency_conversion_api.get_currency_conversion(input_currency, currency_conversion_date)
-      rates = currency_conversion.rates
-      found = rates.select do |r|
-        r.currency.to_s.upcase.to_sym == converted_currency.to_s.upcase.to_sym
-      end
-
-      if found.nil? || found.empty?
-        @logger.warn "Failed to find converted currency #{converted_currency} for input currency #{input_currency}"
-        return [input_amount, input_currency] if converted_currency.nil?
-      end
-
-      # STEPH conversion rounding ??
-      conversion_rate = found[0].value
-      output_amount =  input_amount * conversion_rate
-      return [output_amount.to_i, converted_currency]
-    end
 
     def get_payment_info(kb_account_id, kb_payment_id, tenant_context = nil, options = {})
       # We assume the payment is immutable in Litle and only look at our tables since there
@@ -86,11 +62,13 @@ module Killbill::Litle
       # Set a default report group
       options[:merchant] ||= report_group_for_currency(currency)
 
-      # Go to Litle
-      gateway = Killbill::Litle.gateway_for_currency(currency)
-      litle_response = gateway.credit amount_in_cents, litle_transaction.litle_txn_id, options
-      response = save_response_and_transaction litle_response, :refund, kb_payment_id, amount_in_cents, currency
+      # Check for currency conversion
+      converted = convert_amount_currency_if_required(amount_in_cents, currency)
 
+      # Go to Litle
+      gateway = Killbill::Litle.gateway_for_currency(converted[1])
+      litle_response = gateway.credit converted[0], litle_transaction.litle_txn_id, options
+      response = save_response_and_transaction litle_response, :refund, kb_payment_id, converted[0], converted[1]
       response.to_refund_response
     end
 
@@ -192,6 +170,28 @@ module Killbill::Litle
     end
 
     private
+
+    def convert_amount_currency_if_required(input_amount, input_currency, currency_conversion_date)
+
+      converted_currency = Killbill::Litle.converted_currency(input_currency)
+      return [input_amount, input_currency] if converted_currency.nil?
+
+      currency_conversion = @kb_apis.currency_conversion_api.get_currency_conversion(input_currency, currency_conversion_date)
+      rates = currency_conversion.rates
+      found = rates.select do |r|
+        r.currency.to_s.upcase.to_sym == converted_currency.to_s.upcase.to_sym
+      end
+
+      if found.nil? || found.empty?
+        @logger.warn "Failed to find converted currency #{converted_currency} for input currency #{input_currency}"
+        return [input_amount, input_currency] if converted_currency.nil?
+      end
+
+      # conversion rounding ?
+      conversion_rate = found[0].value
+      output_amount =  input_amount * conversion_rate
+      return [output_amount.to_i, converted_currency]
+    end
 
     def find_value_from_payment_method_props(payment_method_props, key)
       prop = (payment_method_props.properties.find { |kv| kv.key == key })
