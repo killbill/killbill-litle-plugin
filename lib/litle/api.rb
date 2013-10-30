@@ -34,12 +34,12 @@ module Killbill::Litle
       litle_pm = LitlePaymentMethod.from_kb_payment_method_id(kb_payment_method_id)
 
       # Check for currency conversion
-      converted = convert_amount_currency_if_required(amount_in_cents, currency)
+      actual_amount, actual_currency = convert_amount_currency_if_required(amount_in_cents, currency, kb_payment_id)
 
       # Go to Litle
       gateway = Killbill::Litle.gateway_for_currency(converted[1])
-      litle_response = gateway.purchase converted[0], litle_pm.to_litle_card_token, options
-      response = save_response_and_transaction litle_response, :charge, kb_payment_id, converted[0], converted[1]
+      litle_response = gateway.purchase actual_amount, litle_pm.to_litle_card_token, options
+      response = save_response_and_transaction litle_response, :charge, kb_payment_id, actual_amount, actual_currency
 
       response.to_payment_response
     end
@@ -63,12 +63,12 @@ module Killbill::Litle
       options[:merchant] ||= report_group_for_currency(currency)
 
       # Check for currency conversion
-      converted = convert_amount_currency_if_required(amount_in_cents, currency)
+      actual_amount, actual_currency = convert_amount_currency_if_required(amount_in_cents, currency, kb_payment_id)
 
       # Go to Litle
       gateway = Killbill::Litle.gateway_for_currency(converted[1])
-      litle_response = gateway.credit converted[0], litle_transaction.litle_txn_id, options
-      response = save_response_and_transaction litle_response, :refund, kb_payment_id, converted[0], converted[1]
+      litle_response = gateway.credit actual_amount, litle_transaction.litle_txn_id, options
+      response = save_response_and_transaction litle_response, :refund, kb_payment_id, actual_amount, actual_currency
       response.to_refund_response
     end
 
@@ -171,12 +171,14 @@ module Killbill::Litle
 
     private
 
-    def convert_amount_currency_if_required(input_amount, input_currency, currency_conversion_date)
+    def convert_amount_currency_if_required(input_amount, input_currency, kb_payment_id)
 
       converted_currency = Killbill::Litle.converted_currency(input_currency)
       return [input_amount, input_currency] if converted_currency.nil?
 
-      currency_conversion = @kb_apis.currency_conversion_api.get_currency_conversion(input_currency, currency_conversion_date)
+      kb_payment = @kb_apis.payment_api.get_payment(kb_payment_id, false, @kb_apis.create_context)
+
+      currency_conversion = @kb_apis.currency_conversion_api.get_currency_conversion(input_currency, kb_payment.effective_date)
       rates = currency_conversion.rates
       found = rates.select do |r|
         r.currency.to_s.upcase.to_sym == converted_currency.to_s.upcase.to_sym
