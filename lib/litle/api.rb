@@ -57,13 +57,13 @@ module Killbill::Litle
     def process_refund(kb_account_id, kb_payment_id, amount, currency, call_context = nil, options = {})
       amount_in_cents = (amount * 100).to_i
 
-      litle_transaction = LitleTransaction.find_candidate_transaction_for_refund(kb_payment_id, amount_in_cents)
-
-      # Set a default report group
-      options[:merchant] ||= report_group_for_currency(currency)
-
       # Check for currency conversion
       actual_amount, actual_currency = convert_amount_currency_if_required(amount_in_cents, currency, kb_payment_id)
+
+      litle_transaction = LitleTransaction.find_candidate_transaction_for_refund(kb_payment_id, actual_amount)
+
+      # Set a default report group
+      options[:merchant] ||= report_group_for_currency(actual_currency)
 
       # Go to Litle
       gateway = Killbill::Litle.gateway_for_currency(actual_currency)
@@ -178,15 +178,15 @@ module Killbill::Litle
 
       kb_payment = @kb_apis.payment_api.get_payment(kb_payment_id, false, @kb_apis.create_context)
 
-      currency_conversion = @kb_apis.currency_conversion_api.get_currency_conversion(input_currency, kb_payment.effective_date)
+      currency_conversion = @kb_apis.currency_conversion_api.get_currency_conversion(converted_currency, kb_payment.effective_date)
       rates = currency_conversion.rates
       found = rates.select do |r|
-        r.currency.to_s.upcase.to_sym == converted_currency.to_s.upcase.to_sym
+        r.currency.to_s.upcase.to_sym == input_currency.to_s.upcase.to_sym
       end
 
       if found.nil? || found.empty?
         @logger.warn "Failed to find converted currency #{converted_currency} for input currency #{input_currency}"
-        return [input_amount, input_currency] if converted_currency.nil?
+        return [input_amount, input_currency]
       end
 
       # conversion rounding ?
