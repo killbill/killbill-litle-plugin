@@ -37,7 +37,7 @@ module Killbill::Litle
       actual_amount, actual_currency = convert_amount_currency_if_required(amount_in_cents, currency, kb_payment_id)
 
       # Go to Litle
-      gateway = Killbill::Litle.gateway_for_currency(converted[1])
+      gateway = Killbill::Litle.gateway_for_currency(actual_currency)
       litle_response = gateway.purchase actual_amount, litle_pm.to_litle_card_token, options
       response = save_response_and_transaction litle_response, :charge, kb_payment_id, actual_amount, actual_currency
 
@@ -66,7 +66,7 @@ module Killbill::Litle
       actual_amount, actual_currency = convert_amount_currency_if_required(amount_in_cents, currency, kb_payment_id)
 
       # Go to Litle
-      gateway = Killbill::Litle.gateway_for_currency(converted[1])
+      gateway = Killbill::Litle.gateway_for_currency(actual_currency)
       litle_response = gateway.credit actual_amount, litle_transaction.litle_txn_id, options
       response = save_response_and_transaction litle_response, :refund, kb_payment_id, actual_amount, actual_currency
       response.to_refund_response
@@ -209,7 +209,8 @@ module Killbill::Litle
 
     def account_currency(kb_account_id)
       account = @kb_apis.account_user_api.get_account_by_id(kb_account_id, @kb_apis.create_context)
-      account.currency
+      converted_currency = Killbill::Litle.converted_currency(account.currency)
+      converted_currency
     end
 
     def report_group_for_currency(currency)
