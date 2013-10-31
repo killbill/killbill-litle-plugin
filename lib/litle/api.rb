@@ -209,7 +209,9 @@ module Killbill::Litle
 
     def account_currency(kb_account_id)
       account = @kb_apis.account_user_api.get_account_by_id(kb_account_id, @kb_apis.create_context)
-      Killbill::Litle.converted_currency(account.currency)
+      #Killbill::Litle.converted_currency(account.currency)
+      # Use original currency on the account when creating the payment method
+      account.currency
     end
 
     def report_group_for_currency(currency)
