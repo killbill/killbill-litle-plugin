@@ -1,0 +1,16 @@
+:litle:
+  :test: True
+  :log_file: /var/tmp/litle.log
+  :username: YOYO
+  :password: certFoo
+  :merchant_id:
+      :USD: '064400'
+      :EUR: '064401'
+
+:database:
+  :adapter: sqlite3
+  :database: test.db
+
+:currency_conversions:
+  :BRL: 'USD'
+
