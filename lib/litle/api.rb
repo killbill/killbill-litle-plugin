@@ -209,8 +209,7 @@ module Killbill::Litle
 
     def account_currency(kb_account_id)
       account = @kb_apis.account_user_api.get_account_by_id(kb_account_id, @kb_apis.create_context)
-      converted_currency = Killbill::Litle.converted_currency(account.currency)
-      converted_currency
+      Killbill::Litle.converted_currency(account.currency)
     end
 
     def report_group_for_currency(currency)

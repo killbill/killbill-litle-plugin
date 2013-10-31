@@ -89,7 +89,7 @@ module Killbill::Litle
     def to_killbill_response(type)
       if litle_transaction.nil?
         amount_in_cents = nil
-        currency = nill
+        currency = nil
         created_date = created_at
         first_payment_reference_id = nil
         second_payment_reference_id = nil
