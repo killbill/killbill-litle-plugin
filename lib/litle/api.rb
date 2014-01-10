@@ -171,6 +171,10 @@ module Killbill::Litle
       LitleResponse.search(search_key, offset, limit, :payment)
     end
 
+    def search_refunds(search_key, offset = 0, limit = 100, call_context = nil, options = {})
+      LitleResponse.search(search_key, offset, limit, :refund)
+    end
+
     def search_payment_methods(search_key, offset = 0, limit = 100, call_context = nil, options = {})
       LitlePaymentMethod.search(search_key, offset, limit)
     end
