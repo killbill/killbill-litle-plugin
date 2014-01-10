@@ -152,7 +152,7 @@ module Killbill::Litle
 
       if type == :payment
         p_info_plugin = Killbill::Plugin::Model::PaymentInfoPlugin.new
-        p_info_plugin.amount = BigDecimal.new(amount_in_cents.to_s) / 100.0 if amount_in_cents
+        p_info_plugin.amount = Money.new(amount_in_cents, currency).to_d if currency
         p_info_plugin.currency = currency
         p_info_plugin.created_date = created_date
         p_info_plugin.effective_date = effective_date
@@ -164,7 +164,7 @@ module Killbill::Litle
         p_info_plugin
       else
         r_info_plugin = Killbill::Plugin::Model::RefundInfoPlugin.new
-        r_info_plugin.amount = BigDecimal.new(amount_in_cents.to_s) / 100.0 if amount_in_cents
+        r_info_plugin.amount = Money.new(amount_in_cents, currency).to_d if currency
         r_info_plugin.currency = currency
         r_info_plugin.created_date = created_date
         r_info_plugin.effective_date = effective_date
