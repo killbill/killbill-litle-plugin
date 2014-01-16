@@ -77,9 +77,9 @@ module Killbill::Litle
     def get_refund_info(kb_account_id, kb_payment_id, tenant_context = nil, options = {})
       # We assume the refund is immutable in Litle and only look at our tables since there
       # doesn't seem to be a Litle API to fetch details for a given transaction.
-      litle_transaction = LitleTransaction.refund_from_kb_payment_id(kb_payment_id)
+      litle_transactions = LitleTransaction.refunds_from_kb_payment_id(kb_payment_id)
 
-      litle_transaction.litle_response.to_refund_response
+      litle_transactions.map { |t| t.litle_response.to_refund_response }
     end
 
     def add_payment_method(kb_account_id, kb_payment_method_id, payment_method_props, set_default, call_context = nil, options = {})
