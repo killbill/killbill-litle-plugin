@@ -1,3 +1,6 @@
+1.9.9
+    Add jruby-openssl dependency
+
 1.9.8
     Fix packaging
 
