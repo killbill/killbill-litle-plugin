@@ -31,7 +31,7 @@ rake killbill:package
 ARTIFACT="$PWD/pkg/killbill-litle-$VERSION.tar.gz"
 echo "Pushing $ARTIFACT to Maven Central"
 mvn gpg:sign-and-deploy-file \
-    -DgroupId=com.ning.killbill.ruby \
+    -DgroupId=org.kill-bill.billing.plugin.ruby \
     -DartifactId=litle-plugin \
     -Dversion=$VERSION \
     -Dpackaging=tar.gz \
