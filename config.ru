@@ -1,4 +1,4 @@
 require 'litle'
-require 'litle/config/application'
+require 'litle/application'
 
 run Sinatra::Application

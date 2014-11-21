@@ -6,9 +6,7 @@ describe Killbill::Litle::PaymentPlugin do
       file = File.new(File.join(dir, 'litle.yml'), "w+")
       file.write(<<-eos)
 :litle:
-  :merchant_id:
-    :USD: 'merchant_id'
-  :password: 'password'
+  :test: true
 # As defined by spec_helper.rb
 :database:
   :adapter: 'sqlite3'
@@ -16,10 +14,11 @@ describe Killbill::Litle::PaymentPlugin do
       eos
       file.close
 
-      @plugin = Killbill::Litle::PaymentPlugin.new
-      @plugin.logger = Logger.new(STDOUT)
+      @plugin              = Killbill::Litle::PaymentPlugin.new
+      @plugin.logger       = Logger.new(STDOUT)
       @plugin.logger.level = Logger::INFO
-      @plugin.conf_dir = File.dirname(file)
+      @plugin.conf_dir     = File.dirname(file)
+      @plugin.kb_apis      = Killbill::Plugin::KillbillApi.new('litle', {})
 
       # Start the plugin here - since the config file will be deleted
       @plugin.start_plugin
@@ -30,58 +29,33 @@ describe Killbill::Litle::PaymentPlugin do
     @plugin.stop_plugin
   end
 
-  it 'should reset payment methods' do
-    kb_account_id = '129384'
+  # No offsite payments integration
 
-    @plugin.get_payment_methods(kb_account_id).size.should == 0
-    verify_pms kb_account_id, 0
+  #xit 'should generate forms correctly' do
+  #  kb_account_id = SecureRandom.uuid
+  #  kb_tenant_id  = SecureRandom.uuid
+  #  context       = @plugin.kb_apis.create_context(kb_tenant_id)
+  #  fields        = @plugin.hash_to_properties({
+  #                                                 :order_id => '1234',
+  #                                                 :amount   => 10
+  #                                             })
+  #  form          = @plugin.build_form_descriptor kb_account_id, fields, [], context
+  #
+  #  form.kb_account_id.should == kb_account_id
+  #  form.form_method.should == 'POST'
+  #  form.form_url.should == 'https://litle.com'
+  #
+  #  form_fields = @plugin.properties_to_hash(form.form_fields)
+  #end
 
-    # Create a pm with a kb_payment_method_id
-    Killbill::Litle::LitlePaymentMethod.create :kb_account_id => kb_account_id,
-                                               :kb_payment_method_id => 'kb-1',
-                                               :litle_token => 'litle-1'
-    verify_pms kb_account_id, 1
-
-    # Add some in KillBill and reset
-    payment_methods = []
-    # Random order... Shouldn't matter...
-    payment_methods << create_pm_info_plugin(kb_account_id, 'kb-3', false, 'litle-3')
-    payment_methods << create_pm_info_plugin(kb_account_id, 'kb-2', false, 'litle-2')
-    payment_methods << create_pm_info_plugin(kb_account_id, 'kb-4', false, 'litle-4')
-    @plugin.reset_payment_methods kb_account_id, payment_methods
-    verify_pms kb_account_id, 4
-
-    # Add a payment method without a kb_payment_method_id
-    Killbill::Litle::LitlePaymentMethod.create :kb_account_id => kb_account_id,
-                                               :litle_token => 'litle-5'
-    @plugin.get_payment_methods(kb_account_id).size.should == 5
-
-    # Verify we can match it
-    payment_methods << create_pm_info_plugin(kb_account_id, 'kb-5', false, 'litle-5')
-    @plugin.reset_payment_methods kb_account_id, payment_methods
-    verify_pms kb_account_id, 5
-
-    @plugin.stop_plugin
-  end
-
-  private
-
-  def verify_pms(kb_account_id, size)
-    pms = @plugin.get_payment_methods(kb_account_id)
-    pms.size.should == size
-    pms.each do |pm|
-      pm.account_id.should == kb_account_id
-      pm.is_default.should == false
-      pm.external_payment_method_id.should == 'litle-' + pm.payment_method_id.split('-')[1]
-    end
-  end
-
-  def create_pm_info_plugin(kb_account_id, kb_payment_method_id, is_default, external_payment_method_id)
-    pm_info_plugin = Killbill::Plugin::Model::PaymentMethodInfoPlugin.new
-    pm_info_plugin.account_id = kb_account_id
-    pm_info_plugin.payment_method_id = kb_payment_method_id
-    pm_info_plugin.is_default = is_default
-    pm_info_plugin.external_payment_method_id = external_payment_method_id
-    pm_info_plugin
-  end
+  #xit 'should receive notifications correctly' do
+  #  description    = 'description'
+  #
+  #  kb_tenant_id = SecureRandom.uuid
+  #  context      = @plugin.kb_apis.create_context(kb_tenant_id)
+  #  properties   = @plugin.hash_to_properties({ :description => description })
+  #
+  #  notification    = ""
+  #  gw_notification = @plugin.process_notification notification, properties, context
+  #end
 end

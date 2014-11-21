@@ -1,29 +1,24 @@
+require 'openssl'
+require 'action_controller'
 require 'active_record'
-require 'activemerchant'
+require 'action_view'
+require 'active_merchant'
+require 'active_support'
 require 'bigdecimal'
 require 'money'
+require 'monetize'
+require 'offsite_payments'
 require 'pathname'
 require 'sinatra'
 require 'singleton'
 require 'yaml'
 
 require 'killbill'
-
-require 'litle/config/configuration'
-require 'litle/config/properties'
+require 'killbill/helpers/active_merchant'
 
 require 'litle/api'
 require 'litle/private_api'
 
-require 'litle/models/litle_payment_method'
-require 'litle/models/litle_response'
-require 'litle/models/litle_transaction'
-
-require 'litle/litle_utils'
-require 'litle/litle/gateway'
-
-class Object
-  def blank?
-    respond_to?(:empty?) ? empty? : !self
-  end
-end
+require 'litle/models/payment_method'
+require 'litle/models/response'
+require 'litle/models/transaction'

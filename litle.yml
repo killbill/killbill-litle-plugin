@@ -1,16 +1,24 @@
 :litle:
-  :test: True
-  :log_file: /var/tmp/litle.log
-  :username: YOYO
-  :password: certFoo
-  :merchant_id:
-      :USD: '064400'
-      :EUR: '064401'
+  :test: true
+  :login: login
+  :password: password
+  :merchant_id: merchant_id
+  :secure_page_url: 'https://cert01.securepaypage.litle.com'
+  :paypage_id:
+    :USD: 'litle-paypage-id-USD'
+    :EUR: 'litle-paypage-id-EURO'
 
 :database:
   :adapter: sqlite3
   :database: test.db
-
-:currency_conversions:
-  :BRL: 'USD'
-
+# For MySQL
+#  :adapter: 'jdbcmysql'
+#  :username: 'killbill'
+#  :password: 'killbill'
+#  :driver: 'com.mysql.jdbc.Driver'
+#  :url: 'jdbc:mysql://127.0.0.1:3306/killbill'
+# In Kill Bill
+#  :adapter: 'jdbcmysql'
+#  :jndi: 'killbill/osgi/jdbc'
+#  :connection_alive_sql: 'select 1'
+#  :pool: 250

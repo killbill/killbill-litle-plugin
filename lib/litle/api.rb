@@ -1,250 +1,162 @@
-module Killbill::Litle
-  class PaymentPlugin < Killbill::Plugin::Payment
-    def start_plugin
-      Killbill::Litle.initialize! @logger, @conf_dir, @kb_apis
+module Killbill #:nodoc:
+  module Litle #:nodoc:
+    class PaymentPlugin < ::Killbill::Plugin::ActiveMerchant::PaymentPlugin
 
-      super
-
-      @logger.info 'Killbill::Litle::PaymentPlugin started'
-    end
-
-    # return DB connections to the Pool if required
-    def after_request
-      ActiveRecord::Base.connection.close
-    end
-
-    def process_payment(kb_account_id, kb_payment_id, kb_payment_method_id, amount, currency, call_context = nil, options = {})
-      # Use Money to compute the amount in cents, as it depends on the currency (1 cent of BTC is 1 Satoshi, not 0.01 BTC)
-      amount_in_cents = Money.new_with_amount(amount, currency).cents.to_i
-
-      # If the payment was already made, just return the status
-      # TODO Should we set the Litle Id field to check for dups (https://www.litle.com/mc-secure/DupeChecking_V1.2.pdf)?
-      litle_transaction = LitleTransaction.from_kb_payment_id(kb_payment_id) rescue nil
-      return litle_transaction.litle_response.to_payment_response unless litle_transaction.nil?
-
-      # Required argument
-      # Note! The field is limited to 25 chars, so we convert the UUID (in hex) to base64
-      options[:order_id] ||= Utils.compact_uuid kb_payment_id
-
-      # Set the account identifier to the kb_account_id
-      options[:customer] ||= kb_account_id
-
-      # Set a default report group
-      options[:merchant] ||= report_group_for_currency(currency)
-      # Retrieve the Litle payment method
-      litle_pm = LitlePaymentMethod.from_kb_payment_method_id(kb_payment_method_id)
-
-      # Check for currency conversion
-      actual_amount, actual_currency = convert_amount_currency_if_required(amount_in_cents, currency, kb_payment_id)
-
-      # Go to Litle
-      gateway = Killbill::Litle.gateway_for_currency(actual_currency)
-      litle_response = gateway.purchase actual_amount, litle_pm.to_litle_card_token, options
-      response = save_response_and_transaction litle_response, :charge, kb_payment_id, actual_amount, actual_currency
-
-      response.to_payment_response
-    end
-
-
-    def get_payment_info(kb_account_id, kb_payment_id, tenant_context = nil, options = {})
-      # We assume the payment is immutable in Litle and only look at our tables since there
-      # doesn't seem to be a Litle API to fetch details for a given transaction.
-      # TODO How can we support Authorization/Sale Recycling?
-      litle_transaction = LitleTransaction.from_kb_payment_id(kb_payment_id)
-
-      litle_transaction.litle_response.to_payment_response
-    end
-
-    def process_refund(kb_account_id, kb_payment_id, amount, currency, call_context = nil, options = {})
-      # Use Money to compute the amount in cents, as it depends on the currency (1 cent of BTC is 1 Satoshi, not 0.01 BTC)
-      amount_in_cents = Money.new_with_amount(amount, currency).cents.to_i
-
-      # Check for currency conversion
-      actual_amount, actual_currency = convert_amount_currency_if_required(amount_in_cents, currency, kb_payment_id)
-
-      litle_transaction = LitleTransaction.find_candidate_transaction_for_refund(kb_payment_id, actual_amount)
-
-      # Set a default report group
-      options[:merchant] ||= report_group_for_currency(actual_currency)
-
-      # Go to Litle
-      gateway = Killbill::Litle.gateway_for_currency(actual_currency)
-      litle_response = gateway.credit actual_amount, litle_transaction.litle_txn_id, options
-      response = save_response_and_transaction litle_response, :refund, kb_payment_id, actual_amount, actual_currency
-      response.to_refund_response
-    end
-
-    def get_refund_info(kb_account_id, kb_payment_id, tenant_context = nil, options = {})
-      # We assume the refund is immutable in Litle and only look at our tables since there
-      # doesn't seem to be a Litle API to fetch details for a given transaction.
-      litle_transactions = LitleTransaction.refunds_from_kb_payment_id(kb_payment_id)
-
-      litle_transactions.map { |t| t.litle_response.to_refund_response }
-    end
-
-    def add_payment_method(kb_account_id, kb_payment_method_id, payment_method_props, set_default, call_context = nil, options = {})
-      # Set a default report group
-      options[:merchant] ||= report_group_for_account(kb_account_id)
-
-      # TODO Add support for real credit cards
-      token = find_value_from_payment_method_props payment_method_props, 'paypageRegistrationId'
-
-      currency = account_currency(kb_account_id)
-      gateway = Killbill::Litle.gateway_for_currency(currency)
-      litle_response = gateway.store token, options
-      response = save_response_and_transaction litle_response, :add_payment_method
-
-      if response.success
-        LitlePaymentMethod.create :kb_account_id => kb_account_id,
-                                  :kb_payment_method_id => kb_payment_method_id,
-                                  :litle_token => response.litle_token,
-                                  :cc_first_name => find_value_from_payment_method_props(payment_method_props, 'ccFirstName'),
-                                  :cc_last_name => find_value_from_payment_method_props(payment_method_props, 'ccLastName'),
-                                  :cc_type => find_value_from_payment_method_props(payment_method_props, 'ccType'),
-                                  :cc_exp_month => find_value_from_payment_method_props(payment_method_props, 'ccExpMonth'),
-                                  :cc_exp_year => find_value_from_payment_method_props(payment_method_props, 'ccExpYear'),
-                                  :cc_last_4 => find_value_from_payment_method_props(payment_method_props, 'ccLast4'),
-                                  :address1 => find_value_from_payment_method_props(payment_method_props, 'address1'),
-                                  :address2 => find_value_from_payment_method_props(payment_method_props, 'address2'),
-                                  :city => find_value_from_payment_method_props(payment_method_props, 'city'),
-                                  :state => find_value_from_payment_method_props(payment_method_props, 'state'),
-                                  :zip => find_value_from_payment_method_props(payment_method_props, 'zip'),
-                                  :country => find_value_from_payment_method_props(payment_method_props, 'country')
-      else
-        raise response.message
-      end
-    end
-
-    def delete_payment_method(kb_account_id, kb_payment_method_id, call_context = nil, options = {})
-      LitlePaymentMethod.mark_as_deleted! kb_payment_method_id
-    end
-
-    def get_payment_method_detail(kb_account_id, kb_payment_method_id, tenant_context = nil, options = {})
-      LitlePaymentMethod.from_kb_payment_method_id(kb_payment_method_id).to_payment_method_response
-    end
-
-    def set_default_payment_method(kb_account_id, kb_payment_method_id, call_context = nil, options = {})
-      # No-op
-    end
-
-    def get_payment_methods(kb_account_id, refresh_from_gateway = false, call_context = nil, options = {})
-      LitlePaymentMethod.from_kb_account_id(kb_account_id).collect { |pm| pm.to_payment_method_info_response }
-    end
-
-    def reset_payment_methods(kb_account_id, payment_methods)
-      return if payment_methods.nil?
-
-      litle_pms = LitlePaymentMethod.from_kb_account_id(kb_account_id)
-
-      payment_methods.delete_if do |payment_method_info_plugin|
-        should_be_deleted = false
-        litle_pms.each do |litle_pm|
-          # Do litle_pm and payment_method_info_plugin represent the same Litle payment method?
-          if litle_pm.external_payment_method_id == payment_method_info_plugin.external_payment_method_id
-            # Do we already have a kb_payment_method_id?
-            if litle_pm.kb_payment_method_id == payment_method_info_plugin.payment_method_id
-              should_be_deleted = true
-              break
-            elsif litle_pm.kb_payment_method_id.nil?
-              # We didn't have the kb_payment_method_id - update it
-              litle_pm.kb_payment_method_id = payment_method_info_plugin.payment_method_id
-              should_be_deleted = litle_pm.save
-              break
-              # Otherwise the same token points to 2 different kb_payment_method_id. This should never happen,
-              # but we cowardly will insert a second row below
-            end
-          end
+      def initialize
+        gateway_builder = Proc.new do |config|
+          ::ActiveMerchant::Billing::LitleGateway.new :login => config[:login],
+                                                      :password => config[:password],
+                                                      :merchant_id => config[:merchant_id]
         end
 
-        should_be_deleted
+        super(gateway_builder,
+              :litle,
+              ::Killbill::Litle::LitlePaymentMethod,
+              ::Killbill::Litle::LitleTransaction,
+              ::Killbill::Litle::LitleResponse)
       end
 
-      # The remaining elements in payment_methods are not in our table (this should never happen?!)
-      payment_methods.each do |payment_method_info_plugin|
-        LitlePaymentMethod.create :kb_account_id => payment_method_info_plugin.account_id,
-                                  :kb_payment_method_id => payment_method_info_plugin.payment_method_id,
-                                  :litle_token => payment_method_info_plugin.external_payment_method_id
-      end
-    end
+      # TODO Should we set the Litle Id field to check for dups (https://www.litle.com/mc-secure/DupeChecking_V1.2.pdf)?
 
-    def search_payments(search_key, offset = 0, limit = 100, call_context = nil, options = {})
-      LitleResponse.search(search_key, offset, limit, :payment)
-    end
+      def authorize_payment(kb_account_id, kb_payment_id, kb_payment_transaction_id, kb_payment_method_id, amount, currency, properties, context)
+        # Pass extra parameters for the gateway here
+        options = {}
 
-    def search_refunds(search_key, offset = 0, limit = 100, call_context = nil, options = {})
-      LitleResponse.search(search_key, offset, limit, :refund)
-    end
-
-    def search_payment_methods(search_key, offset = 0, limit = 100, call_context = nil, options = {})
-      LitlePaymentMethod.search(search_key, offset, limit)
-    end
-
-    private
-
-    def convert_amount_currency_if_required(input_amount, input_currency, kb_payment_id)
-
-      converted_currency = Killbill::Litle.converted_currency(input_currency)
-      return [input_amount, input_currency] if converted_currency.nil?
-
-      kb_payment = @kb_apis.payment_api.get_payment(kb_payment_id, false, @kb_apis.create_context)
-
-      currency_conversion = @kb_apis.currency_conversion_api.get_currency_conversion(converted_currency, kb_payment.effective_date)
-      rates = currency_conversion.rates
-      found = rates.select do |r|
-        r.currency.to_s.upcase.to_sym == input_currency.to_s.upcase.to_sym
+        properties = merge_properties(properties, options)
+        super(kb_account_id, kb_payment_id, kb_payment_transaction_id, kb_payment_method_id, amount, currency, properties, context)
       end
 
-      if found.nil? || found.empty?
-        @logger.warn "Failed to find converted currency #{converted_currency} for input currency #{input_currency}"
-        return [input_amount, input_currency]
+      def capture_payment(kb_account_id, kb_payment_id, kb_payment_transaction_id, kb_payment_method_id, amount, currency, properties, context)
+        # Pass extra parameters for the gateway here
+        options = {}
+
+        properties = merge_properties(properties, options)
+        super(kb_account_id, kb_payment_id, kb_payment_transaction_id, kb_payment_method_id, amount, currency, properties, context)
       end
 
-      # conversion rounding ?
-      conversion_rate = found[0].value
-      output_amount =  input_amount * conversion_rate
-      return [output_amount.to_i, converted_currency]
-    end
+      def purchase_payment(kb_account_id, kb_payment_id, kb_payment_transaction_id, kb_payment_method_id, amount, currency, properties, context)
+        # Pass extra parameters for the gateway here
+        options = {}
 
-    def find_value_from_payment_method_props(payment_method_props, key)
-      prop = (payment_method_props.properties.find { |kv| kv.key == key })
-      prop.nil? ? nil : prop.value
-    end
-
-    def report_group_for_account(kb_account_id)
-      currency = account_currency(kb_account_id)
-      report_group_for_currency(currency)
-    rescue => e
-      'Default Report Group'
-    end
-
-    def account_currency(kb_account_id)
-      account = @kb_apis.account_user_api.get_account_by_id(kb_account_id, @kb_apis.create_context)
-      #Killbill::Litle.converted_currency(account.currency)
-      # Use original currency on the account when creating the payment method
-      account.currency
-    end
-
-    def report_group_for_currency(currency)
-      "Report Group for #{currency.to_s}"
-    end
-
-    def save_response_and_transaction(litle_response, api_call, kb_payment_id=nil, amount_in_cents=0, currency=nil)
-      @logger.warn "Unsuccessful #{api_call}: #{litle_response.message}" unless litle_response.success?
-
-      # Save the response to our logs
-      response = LitleResponse.from_response(api_call, kb_payment_id, litle_response)
-      response.save!
-
-      if response.success and !kb_payment_id.blank? and !response.litle_txn_id.blank?
-        # Record the transaction
-        transaction = response.create_litle_transaction!(:amount_in_cents => amount_in_cents,
-                                                         :currency => currency,
-                                                         :api_call => api_call,
-                                                         :kb_payment_id => kb_payment_id,
-                                                         :litle_txn_id => response.litle_txn_id)
-        @logger.debug "Recorded transaction: #{transaction.inspect}"
+        properties = merge_properties(properties, options)
+        super(kb_account_id, kb_payment_id, kb_payment_transaction_id, kb_payment_method_id, amount, currency, properties, context)
       end
-      response
+
+      def void_payment(kb_account_id, kb_payment_id, kb_payment_transaction_id, kb_payment_method_id, properties, context)
+        # Pass extra parameters for the gateway here
+        options = {}
+
+        properties = merge_properties(properties, options)
+        super(kb_account_id, kb_payment_id, kb_payment_transaction_id, kb_payment_method_id, properties, context)
+      end
+
+      def credit_payment(kb_account_id, kb_payment_id, kb_payment_transaction_id, kb_payment_method_id, amount, currency, properties, context)
+        # Pass extra parameters for the gateway here
+        options = {}
+
+        properties = merge_properties(properties, options)
+        super(kb_account_id, kb_payment_id, kb_payment_transaction_id, kb_payment_method_id, amount, currency, properties, context)
+      end
+
+      def refund_payment(kb_account_id, kb_payment_id, kb_payment_transaction_id, kb_payment_method_id, amount, currency, properties, context)
+        # Pass extra parameters for the gateway here
+        options = {}
+
+        properties = merge_properties(properties, options)
+        super(kb_account_id, kb_payment_id, kb_payment_transaction_id, kb_payment_method_id, amount, currency, properties, context)
+      end
+
+      def get_payment_info(kb_account_id, kb_payment_id, properties, context)
+        # Pass extra parameters for the gateway here
+        options = {}
+
+        properties = merge_properties(properties, options)
+        super(kb_account_id, kb_payment_id, properties, context)
+      end
+
+      def search_payments(search_key, offset, limit, properties, context)
+        # Pass extra parameters for the gateway here
+        options = {}
+
+        properties = merge_properties(properties, options)
+        super(search_key, offset, limit, properties, context)
+      end
+
+      def add_payment_method(kb_account_id, kb_payment_method_id, payment_method_props, set_default, properties, context)
+        # Pass extra parameters for the gateway here
+        options = {}
+
+        properties = merge_properties(properties, options)
+        super(kb_account_id, kb_payment_method_id, payment_method_props, set_default, properties, context)
+      end
+
+      def delete_payment_method(kb_account_id, kb_payment_method_id, properties, context)
+        # Pass extra parameters for the gateway here
+        options = {}
+
+        properties = merge_properties(properties, options)
+        super(kb_account_id, kb_payment_method_id, properties, context)
+      end
+
+      def get_payment_method_detail(kb_account_id, kb_payment_method_id, properties, context)
+        # Pass extra parameters for the gateway here
+        options = {}
+
+        properties = merge_properties(properties, options)
+        super(kb_account_id, kb_payment_method_id, properties, context)
+      end
+
+      def set_default_payment_method(kb_account_id, kb_payment_method_id, properties, context)
+        # TODO
+      end
+
+      def get_payment_methods(kb_account_id, refresh_from_gateway, properties, context)
+        # Pass extra parameters for the gateway here
+        options = {}
+
+        properties = merge_properties(properties, options)
+        super(kb_account_id, refresh_from_gateway, properties, context)
+      end
+
+      def search_payment_methods(search_key, offset, limit, properties, context)
+        # Pass extra parameters for the gateway here
+        options = {}
+
+        properties = merge_properties(properties, options)
+        super(search_key, offset, limit, properties, context)
+      end
+
+      def reset_payment_methods(kb_account_id, payment_methods, properties, context)
+        super
+      end
+
+      def build_form_descriptor(kb_account_id, descriptor_fields, properties, context)
+        # Pass extra parameters for the gateway here
+        options = {}
+        properties = merge_properties(properties, options)
+
+        # Add your custom static hidden tags here
+        options = {
+            #:token => config[:litle][:token]
+        }
+        descriptor_fields = merge_properties(descriptor_fields, options)
+
+        super(kb_account_id, descriptor_fields, properties, context)
+      end
+
+      def process_notification(notification, properties, context)
+        # Pass extra parameters for the gateway here
+        options = {}
+        properties = merge_properties(properties, options)
+
+        super(notification, properties, context) do |gw_notification, service|
+          # Retrieve the payment
+          # gw_notification.kb_payment_id =
+          #
+          # Set the response body
+          # gw_notification.entity =
+        end
+      end
     end
   end
 end
