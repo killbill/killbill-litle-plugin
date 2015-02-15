@@ -23,6 +23,9 @@ Then, save the token in Kill Bill (only `paypageRegistrationId` is required in t
 ```
 curl -v \
      -X POST \
+     -u admin:password \
+     -H "X-Killbill-ApiKey: bob" \
+     -H "X-Killbill-ApiSecret: lazar" \
      -H "Content-Type: application/json" \
      -H "X-Killbill-CreatedBy: Web server" \
      -H "X-Killbill-Reason: New account" \
