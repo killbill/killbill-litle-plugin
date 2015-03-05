@@ -28,6 +28,8 @@ killbill-litle/
 # Testing database
 test.db
 
+litle.log
+
 target
 pom.xml.asc
 
