@@ -16,6 +16,14 @@ module Killbill #:nodoc:
               ::Killbill::Litle::LitleResponse)
       end
 
+      def on_event(event)
+        # Require to deal with per tenant configuration invalidation
+        super(event)
+        #
+        # Custom event logic could be added below...
+        #
+      end
+
       # TODO Should we set the Litle Id field to check for dups (https://www.litle.com/mc-secure/DupeChecking_V1.2.pdf)?
 
       def authorize_payment(kb_account_id, kb_payment_id, kb_payment_transaction_id, kb_payment_method_id, amount, currency, properties, context)
