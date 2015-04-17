@@ -1,12 +1,16 @@
 :litle:
-  :test: true
-  :login: login
-  :password: password
-  :merchant_id: merchant_id
-  :secure_page_url: 'https://cert01.securepaypage.litle.com'
-  :paypage_id:
-    :USD: 'litle-paypage-id-USD'
-    :EUR: 'litle-paypage-id-EURO'
+  - :account_id: "USD"
+    :merchant_id: "your-merchant-id-USD"
+    :username: "your-username"
+    :password: "your-password"
+    :secure_page_url: "https://request-prelive.np-securepaypage-litle.com"
+    :paypage_id: "litle-paypage-id-USD"
+  - :account_id: "EUR"
+    :merchant_id: "your-merchant-id-EUR"
+    :username: "your-username"
+    :password: "your-password"
+    :secure_page_url: "https://request-prelive.np-securepaypage-litle.com"
+    :paypage_id: "litle-paypage-id-EUR"
 
 :database:
 # SQLite (development)
