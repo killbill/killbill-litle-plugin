@@ -91,8 +91,25 @@ module Killbill #:nodoc:
       end
 
       def add_payment_method(kb_account_id, kb_payment_method_id, payment_method_props, set_default, properties, context)
+        # paypageRegistrationId is passed via properties
+        paypage_registration_id = find_value_from_properties(properties, 'paypageRegistrationId')
+        # paypageRegistrationId is passed from the json body
+        paypage_registration_id = find_value_from_properties(payment_method_props.properties, 'paypageRegistrationId') if paypage_registration_id.nil?
+
         # Pass extra parameters for the gateway here
         options = {}
+
+        # Register the token
+        unless paypage_registration_id.nil?
+          payment_processor_account_id = options[:payment_processor_account_id] || :default
+          gateway                      = lookup_gateway(payment_processor_account_id, context.tenant_id)
+          litle_response               = gateway.register_token_request(paypage_registration_id, options)
+          response, _                  = save_response_and_transaction(litle_response, :register_token_request, kb_account_id, context.tenant_id, payment_processor_account_id)
+          raise response.message unless response.success
+
+          options[:skip_gw] = true
+          options[:token] = litle_response.authorization
+        end
 
         properties = merge_properties(properties, options)
         super(kb_account_id, kb_payment_method_id, payment_method_props, set_default, properties, context)
