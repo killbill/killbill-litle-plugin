@@ -2,7 +2,8 @@
 <html>
   <head>
     <title>Pay Page Checkout</title>
-    <script src="<%= secure_page_url %>/LitlePayPage/litle-api.js" type="text/javascript"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript"></script>
+    <script src="<%= secure_page_url %>/LitlePayPage/litle-api2.js" type="text/javascript"></script>
     <script>
     $(document).ready(
       function() {
@@ -68,6 +69,7 @@
           else if (response.response == '889') {
             handleError("We are experiencing technical difficulties. Please try your query again later.");
           }
+          console.log(response.message);
           return false;
         }
 
@@ -90,7 +92,7 @@
               "url": "<%= secure_page_url %>"
             };
 
-            sendToLitle(litleRequest, formFields, submitAfterLitle, onErrorAfterLitle, timeoutOnLitle, 5000);
+            new LitlePayPage().sendToLitle(litleRequest, formFields, submitAfterLitle, onErrorAfterLitle, timeoutOnLitle, 5000);
             return false;
           }
         );
@@ -135,7 +137,7 @@
   </body>
   <script>
   function callLitle() {
-    if (typeof sendToLitle != 'function') {
+    if (typeof new LitlePayPage().sendToLitle != 'function') {
       alert("We are experiencing technical difficulties. Please try your query again later (API unavailable).");
     }
   }
