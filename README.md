@@ -22,15 +22,18 @@ curl -v \
      -H 'X-Killbill-CreatedBy: admin' \
      -H 'Content-Type: text/plain' \
      -d ':litle:
-  :merchant_id:
-    :USD: "your-merchant-id-USD"
-    :EUR: "your-merchant-id-EURO"
-  :password: "your-password"
-  :username: "your-username"
-  :secure_page_url: "litle-secure-page-url"
-  :paypage_id:
-    :USD: "litle-paypage-id-USD"
-    :EUR: "litle-paypage-id-EURO"' \
+  - :account_id: USD
+    :merchant_id: "your-merchant-id-USD"
+    :username: "your-username"
+    :password: "your-password"
+    :secure_page_url: "litle-secure-page-url"
+    :paypage_id: "your-paypage-id-USD"
+  - :account_id: EUR
+    :merchant_id: "your-merchant-id-EUR"
+    :username: "your-username"
+    :password: "your-password"
+    :secure_page_url: "litle-secure-page-url"
+    :paypage_id: "your-paypage-id-EUR"' \
      http://127.0.0.1:8080/1.0/kb/tenants/uploadPluginConfig/killbill-litle
 ```
 
