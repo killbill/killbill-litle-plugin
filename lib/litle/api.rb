@@ -30,6 +30,9 @@ module Killbill #:nodoc:
         # Pass extra parameters for the gateway here
         options = {}
 
+        paypage_registration_id = find_value_from_properties(properties, 'paypageRegistrationId')
+        options[:paypage_registration_id] = paypage_registration_id unless paypage_registration_id.blank?
+
         properties = merge_properties(properties, options)
         super(kb_account_id, kb_payment_id, kb_payment_transaction_id, kb_payment_method_id, amount, currency, properties, context)
       end

@@ -17,7 +17,7 @@ module Killbill #:nodoc:
               response,
               {
                   :params_litle_txn_id  => extract(response, 'litleTxnId'),
-                  :params_order_id      => extract(response, 'orderId'),
+                  :params_order_id      => extract(response, 'orderId') || extract(response, 'id'),
                   :params_litle_token   => extract(response, 'litleToken'),
                   :params_auth_code     => extract(response, 'authCode'),
                   :params_response      => extract(response, 'response'),
