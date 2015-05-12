@@ -1,9 +1,12 @@
 require 'spec_helper'
 
 describe Killbill::Litle::PaymentPlugin do
+
+  include ::Killbill::Plugin::ActiveMerchant::RSpec
+
   before(:each) do
     Dir.mktmpdir do |dir|
-      file = File.new(File.join(dir, 'litle.yml'), "w+")
+      file = File.new(File.join(dir, 'litle.yml'), 'w+')
       file.write(<<-eos)
 :litle:
   :test: true
@@ -14,12 +17,7 @@ describe Killbill::Litle::PaymentPlugin do
       eos
       file.close
 
-      @plugin              = Killbill::Litle::PaymentPlugin.new
-      @plugin.logger       = Logger.new(STDOUT)
-      @plugin.logger.level = Logger::INFO
-      @plugin.conf_dir     = File.dirname(file)
-      @plugin.kb_apis      = Killbill::Plugin::KillbillApi.new('litle', {})
-      @plugin.root         = '/foo/killbill-litle/0.0.1'
+      @plugin = build_plugin(::Killbill::Litle::PaymentPlugin, 'litle', File.dirname(file))
 
       # Start the plugin here - since the config file will be deleted
       @plugin.start_plugin

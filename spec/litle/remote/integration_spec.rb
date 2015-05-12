@@ -7,25 +7,14 @@ describe Killbill::Litle::PaymentPlugin do
   include ::Killbill::Plugin::ActiveMerchant::RSpec
 
   before(:each) do
-    @plugin = Killbill::Litle::PaymentPlugin.new
+    ::Killbill::Litle::LitlePaymentMethod.delete_all
+    ::Killbill::Litle::LitleResponse.delete_all
+    ::Killbill::Litle::LitleTransaction.delete_all
 
-    @account_api    = ::Killbill::Plugin::ActiveMerchant::RSpec::FakeJavaUserAccountApi.new
-    @payment_api    = ::Killbill::Plugin::ActiveMerchant::RSpec::FakeJavaPaymentApi.new
-    @tenant_api     = ::Killbill::Plugin::ActiveMerchant::RSpec::FakeJavaTenantUserApi.new({})
-
-    svcs            = {:account_user_api => @account_api, :payment_api => @payment_api, :tenant_user_api => @tenant_api}
-    @plugin.kb_apis = Killbill::Plugin::KillbillApi.new('litle', svcs)
-
-    @call_context           = ::Killbill::Plugin::Model::CallContext.new
-    @call_context.tenant_id = '00000011-0022-0033-0044-000000000055'
-    @call_context           = @call_context.to_ruby(@call_context)
-
-    @plugin.logger       = Logger.new(STDOUT)
-    @plugin.logger.level = Logger::INFO
-    @plugin.conf_dir     = File.expand_path(File.dirname(__FILE__) + '../../../../')
-    @plugin.root         = '/foo/killbill-litle/0.0.1'
-
+    @plugin = build_plugin(::Killbill::Litle::PaymentPlugin, 'litle')
     @plugin.start_plugin
+
+    @call_context = build_call_context
 
     @properties = []
     @pm         = create_payment_method(::Killbill::Litle::LitlePaymentMethod, nil, @call_context.tenant_id, @properties)
@@ -34,7 +23,7 @@ describe Killbill::Litle::PaymentPlugin do
 
     kb_payment_id = SecureRandom.uuid
     1.upto(6) do
-      @kb_payment = @payment_api.add_payment(kb_payment_id)
+      @kb_payment = @plugin.kb_apis.proxied_services[:payment_api].add_payment(kb_payment_id)
     end
   end
 
