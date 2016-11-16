@@ -40,7 +40,7 @@ module ActiveMerchant #:nodoc:
       end
 
       def add_auth_purchase_params(doc, money, payment_method, options)
-        doc.orderId(truncated_order_id(options))
+        doc.orderId(truncate(options[:order_id], 24))
         doc.amount(money)
         add_order_source(doc, payment_method, options)
         add_billing_address(doc, payment_method, options)
