@@ -56,7 +56,7 @@ To go to production, create a `litle.yml` configuration file under `/var/tmp/bun
 Usage
 -----
 
-You would typically implement [Litle PayPage](https://www.litle.com/images/uploads/Paypage.pdf) to tokenize credit cards. 
+You would typically implement [Litle PayPage](https://www.litle.com/images/uploads/Paypage.pdf) to tokenize credit cards.
 
 After receiving the token from Litle, call:
 
@@ -84,4 +84,23 @@ An example implementation is exposed at:
 
 ```
 http://127.0.0.1:8080/plugins/killbill-litle/form?kb_account_id=2a55045a-ce1d-4344-942d-b825536328f9&kb_tenant_id=a86d9fd1-718d-4178-a9eb-46c61aa2548f
+```
+
+Running the tests
+-----------------
+
+In order to run the certification and integration tests, you will need a valid merchant id and credentials. You will
+also likely have received a URL to test with when signing up for the merchant id. If not, then you could try one of
+these:
+
+* https://transact-prelive.litle.com/vap/communicator/online
+* https://request-prelive.np-securepaypage-litle.com
+
+Then run the tests with:
+```
+LITLE_SECURE_PAGE_URL="<the URL>" \
+LITLE_MERCHANT_ID="<your merchant id>" \
+LITLE_USERNAME="<your username>" \
+LITLE_PASSWORD="<your password>" \
+bundle exec rspec
 ```

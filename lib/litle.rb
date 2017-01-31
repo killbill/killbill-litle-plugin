@@ -27,6 +27,14 @@ require 'litle/models/transaction'
 module ActiveMerchant #:nodoc:
   module Billing #:nodoc:
     class LitleGateway < Gateway
+      def initialize(options={})
+        if options.has_key?(:secure_page_url)
+          self.test_url = options[:secure_page_url]
+        end
+        super
+      end
+
+
       def register_token_request(paypage_registration_id, options = {})
         request = build_xml_request do |doc|
           add_authentication(doc)
