@@ -28,8 +28,8 @@ module ActiveMerchant #:nodoc:
   module Billing #:nodoc:
     class LitleGateway < Gateway
       def initialize(options={})
-        if options.has_key?(:secure_page_url)
-          self.test_url = options[:secure_page_url]
+        if options.has_key?(:test_url)
+          self.test_url = options[:test_url]
         end
         super
       end

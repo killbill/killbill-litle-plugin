@@ -33,13 +33,13 @@ curl -v \
      -d ':litle:
   - :account_id: USD
     :merchant_id: "your-merchant-id-USD"
-    :username: "your-username"
+    :login: "your-username"
     :password: "your-password"
     :secure_page_url: "litle-secure-page-url"
     :paypage_id: "your-paypage-id-USD"
   - :account_id: EUR
     :merchant_id: "your-merchant-id-EUR"
-    :username: "your-username"
+    :login: "your-username"
     :password: "your-password"
     :secure_page_url: "litle-secure-page-url"
     :paypage_id: "your-paypage-id-EUR"' \
@@ -90,17 +90,13 @@ Running the tests
 -----------------
 
 In order to run the certification and integration tests, you will need a valid merchant id and credentials. You will
-also likely have received a URL to test with when signing up for the merchant id. If not, then you could try one of
-these:
-
-* https://transact-prelive.litle.com/vap/communicator/online
-* https://request-prelive.np-securepaypage-litle.com
+also likely have received a URL to test with when signing up for the merchant id.
 
 Then run the tests with:
 ```
-LITLE_SECURE_PAGE_URL="<the URL>" \
+LITLE_TEST_URL="<the URL>" \
 LITLE_MERCHANT_ID="<your merchant id>" \
-LITLE_USERNAME="<your username>" \
+LITLE_LOGIN="<your login>" \
 LITLE_PASSWORD="<your password>" \
 bundle exec rspec
 ```

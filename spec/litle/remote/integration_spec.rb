@@ -11,27 +11,6 @@ describe Killbill::Litle::PaymentPlugin do
     ::Killbill::Litle::LitleResponse.delete_all
     ::Killbill::Litle::LitleTransaction.delete_all
 
-    Dir.mktmpdir do |dir|
-      file = File.new(File.join(dir, 'litle.yml'), 'w+')
-      file.write(<<-eos)
-:litle:
-  :account_id: "USD"
-  :merchant_id: "#{ENV['LITLE_MERCHANT_ID']}"
-  :username: "#{ENV['LITLE_USERNAME']}"
-  :password: "#{ENV['LITLE_PASSWORD']}"
-  :secure_page_url: "#{ENV['LITLE_SECURE_PAGE_URL']}"
-  :paypage_id: "litle-paypage-id-USD"
-  :test: true
-# As defined by spec_helper.rb
-:database:
-  :adapter: 'sqlite3'
-  :database: 'test.db'
-      eos
-      file.close
-      @plugin = build_plugin(::Killbill::Litle::PaymentPlugin, 'litle', File.dirname(file))
-      @plugin.start_plugin
-    end
-
     @call_context = build_call_context
 
     @properties = []

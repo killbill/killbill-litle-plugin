@@ -1,15 +1,15 @@
 :litle:
   - :account_id: "USD"
     :merchant_id: "your-merchant-id-USD"
-    :username: "your-username"
+    :login: "your-username"
     :password: "your-password"
-    :secure_page_url: "https://request-prelive.np-securepaypage-litle.com"
+    :test_url: "https://request-prelive.np-securepaypage-litle.com"
     :paypage_id: "litle-paypage-id-USD"
   - :account_id: "EUR"
     :merchant_id: "your-merchant-id-EUR"
-    :username: "your-username"
+    :login: "your-username"
     :password: "your-password"
-    :secure_page_url: "https://request-prelive.np-securepaypage-litle.com"
+    :test_url: "https://request-prelive.np-securepaypage-litle.com"
     :paypage_id: "litle-paypage-id-EUR"
 
 :database:
