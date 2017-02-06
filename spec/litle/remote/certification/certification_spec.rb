@@ -593,7 +593,7 @@ describe Killbill::Litle::PaymentPlugin do
 
   def authorize_assertions(order_id, amount, txn_nb, properties, assertions = {})
     properties = properties.clone
-    properties << build_property(:order_id, order_id)
+    properties << build_property(:order_id, order_id + " (" + SecureRandom.hex(6) + ")")
 
     payment_response = @plugin.authorize_payment(@pm.kb_account_id,
                                                  @kb_payment.id,
@@ -610,7 +610,7 @@ describe Killbill::Litle::PaymentPlugin do
 
   def capture_assertions(order_id, amount, txn_nb, properties, assertions = {})
     properties = properties.clone
-    properties << build_property(:order_id, order_id)
+    properties << build_property(:order_id, order_id + " (" + SecureRandom.hex(6) + ")")
 
     payment_response = @plugin.capture_payment(@pm.kb_account_id,
                                                @kb_payment.id,
@@ -627,7 +627,7 @@ describe Killbill::Litle::PaymentPlugin do
 
   def purchase_assertions(order_id, amount, txn_nb, properties, assertions = {})
     properties = properties.clone
-    properties << build_property(:order_id, order_id)
+    properties << build_property(:order_id, order_id + " (" + SecureRandom.hex(6) + ")")
 
     payment_response = @plugin.purchase_payment(@pm.kb_account_id,
                                                 @kb_payment.id,
@@ -647,7 +647,7 @@ describe Killbill::Litle::PaymentPlugin do
     return txn_nb + 1
 
     properties = properties.clone
-    properties << build_property(:order_id, order_id)
+    properties << build_property(:order_id, order_id + " (" + SecureRandom.hex(6) + ")")
 
     payment_response = @plugin.credit_payment(@pm.kb_account_id,
                                               @kb_payment.id,
@@ -664,7 +664,7 @@ describe Killbill::Litle::PaymentPlugin do
 
   def void_assertions(order_id, txn_nb, properties, assertions = {})
     properties = properties.clone
-    properties << build_property(:order_id, order_id)
+    properties << build_property(:order_id, order_id + " (" + SecureRandom.hex(6) + ")")
 
     payment_response = @plugin.void_payment(@pm.kb_account_id,
                                             @kb_payment.id,
@@ -691,7 +691,7 @@ describe Killbill::Litle::PaymentPlugin do
 
   def store_assertions(order_id, properties, assertions = {})
     properties = properties.clone
-    properties << build_property(:order_id, order_id)
+    properties << build_property(:order_id, order_id + " (" + SecureRandom.hex(6) + ")")
 
     info = Killbill::Plugin::Model::PaymentMethodPlugin.new
     info.properties = []

@@ -94,6 +94,18 @@ module ActiveMerchant #:nodoc:
 
         parsed
       end
+
+      # Add support for partial captures
+      alias old_transaction_attributes transaction_attributes
+
+      def transaction_attributes(options)
+        attributes = old_transaction_attributes(options)
+        if options[:partial] == true
+          attributes[:partial] = true
+        end
+        attributes
+      end
+
     end
   end
 end

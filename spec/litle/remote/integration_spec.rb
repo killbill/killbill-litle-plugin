@@ -43,7 +43,9 @@ describe Killbill::Litle::PaymentPlugin do
     responses = Killbill::Litle::LitleResponse.all
     responses.size.should == 2
     responses[0].api_call.should == 'add_payment_method'
-    responses[0].message.should == 'Approved'
+    # If tokens are enabled for the merchant then we get different messages
+    # depending on whether the CC has been used before or not
+    responses[0].message.should be_in ['Approved', 'Account number was successfully registered', 'Account number was previously registered']
     responses[1].api_call.should == 'purchase'
     responses[1].message.should == 'Approved'
     transactions = Killbill::Litle::LitleTransaction.all
