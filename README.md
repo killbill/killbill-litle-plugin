@@ -94,6 +94,7 @@ also likely have received a URL to test with when signing up for the merchant id
 
 Then run the tests with:
 ```
+LITLE_TEST=true \
 LITLE_TEST_URL="<the URL>" \
 LITLE_MERCHANT_ID="<your merchant id>" \
 LITLE_LOGIN="<your login>" \
