@@ -10,6 +10,10 @@ RSpec.configure do |config|
   config.color_enabled = true
   config.tty = true
   config.formatter = 'documentation'
+  config.before(:each) do
+    @plugin = build_plugin(::Killbill::Litle::PaymentPlugin, 'litle')
+    @plugin.start_plugin
+  end
 end
 
 require 'active_record'

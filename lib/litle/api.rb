@@ -6,7 +6,8 @@ module Killbill #:nodoc:
         gateway_builder = Proc.new do |config|
           ::ActiveMerchant::Billing::LitleGateway.new :login => config[:login],
                                                       :password => config[:password],
-                                                      :merchant_id => config[:merchant_id]
+                                                      :merchant_id => config[:merchant_id],
+                                                      :test_url => config[:test_url]
         end
 
         super(gateway_builder,

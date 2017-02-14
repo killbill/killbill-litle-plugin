@@ -21,9 +21,6 @@ describe Killbill::Litle::PaymentPlugin do
   end
 
   before(:each) do
-    @plugin = build_plugin(::Killbill::Litle::PaymentPlugin, 'litle')
-    @plugin.start_plugin
-
     @call_context = build_call_context
 
     @properties = []

@@ -33,13 +33,13 @@ curl -v \
      -d ':litle:
   - :account_id: USD
     :merchant_id: "your-merchant-id-USD"
-    :username: "your-username"
+    :login: "your-username"
     :password: "your-password"
     :secure_page_url: "litle-secure-page-url"
     :paypage_id: "your-paypage-id-USD"
   - :account_id: EUR
     :merchant_id: "your-merchant-id-EUR"
-    :username: "your-username"
+    :login: "your-username"
     :password: "your-password"
     :secure_page_url: "litle-secure-page-url"
     :paypage_id: "your-paypage-id-EUR"' \
@@ -56,7 +56,7 @@ To go to production, create a `litle.yml` configuration file under `/var/tmp/bun
 Usage
 -----
 
-You would typically implement [Litle PayPage](https://www.litle.com/images/uploads/Paypage.pdf) to tokenize credit cards. 
+You would typically implement [Litle PayPage](https://www.litle.com/images/uploads/Paypage.pdf) to tokenize credit cards.
 
 After receiving the token from Litle, call:
 
@@ -84,4 +84,20 @@ An example implementation is exposed at:
 
 ```
 http://127.0.0.1:8080/plugins/killbill-litle/form?kb_account_id=2a55045a-ce1d-4344-942d-b825536328f9&kb_tenant_id=a86d9fd1-718d-4178-a9eb-46c61aa2548f
+```
+
+Running the tests
+-----------------
+
+In order to run the certification and integration tests, you will need a valid merchant id and credentials. You will
+also likely have received a URL to test with when signing up for the merchant id.
+
+Then run the tests with:
+```
+LITLE_TEST=true \
+LITLE_TEST_URL="<the URL>" \
+LITLE_MERCHANT_ID="<your merchant id>" \
+LITLE_LOGIN="<your login>" \
+LITLE_PASSWORD="<your password>" \
+bundle exec rspec
 ```
