@@ -6,7 +6,7 @@
     :test_url: "<%= ENV['LITLE_TEST_URL'] %>"
     :secure_page_url: "https://request-prelive.np-securepaypage-litle.com"
     :paypage_id: "litle-paypage-id-USD"
-    :test: "<%= ENV['LITLE_TEST'] || false %>"
+    :test: "<%= ENV['LITLE_TEST'] || true %>"
   - :account_id: "EUR"
     :merchant_id: "<%= ENV['LITLE_MERCHANT_ID'] %>"
     :login: "<%= ENV['LITLE_LOGIN'] %>"
@@ -14,7 +14,7 @@
     :test_url: "<%= ENV['LITLE_TEST_URL'] %>"
     :secure_page_url: "https://request-prelive.np-securepaypage-litle.com"
     :paypage_id: "litle-paypage-id-EUR"
-    :test: "<%= ENV['LITLE_TEST'] || false %>"
+    :test: "<%= ENV['LITLE_TEST'] || true %>"
 
 :database:
 # SQLite (development)
