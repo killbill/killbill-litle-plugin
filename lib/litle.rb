@@ -28,7 +28,7 @@ module ActiveMerchant #:nodoc:
   module Billing #:nodoc:
     class LitleGateway < Gateway
       def initialize(options={})
-        if options.has_key?(:test_url)
+        unless options[:test_url].blank?
           self.test_url = options[:test_url]
         end
         super
