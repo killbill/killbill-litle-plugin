@@ -49,13 +49,16 @@ module ActiveMerchant #:nodoc:
         add_payment_method(doc, payment_method, options)
         add_pos(doc, payment_method)
         add_descriptor(doc, options)
+        if options.has_key?(:allow_partial_auth)
+          doc.allowPartialAuth(options[:allow_partial_auth])
+        end
       end
 
       # Add support for PayPage registration ids
       alias old_add_payment_method add_payment_method
 
       def add_payment_method(doc, payment_method, options = {})
-        if options.has_key?(:paypageRegistrationId)
+        if options.has_key?(:paypage_registration_id)
           doc.paypage do
             doc.paypageRegistrationId(options[:paypage_registration_id])
             doc.expDate(exp_date(payment_method))
@@ -104,6 +107,14 @@ module ActiveMerchant #:nodoc:
           attributes[:partial] = true
         end
         attributes
+      end
+
+      def success_from(kind, parsed)
+        if kind == :registerToken
+          %w(000 801 802).include?(parsed[:response])
+        else
+          %w(000 010).include?(parsed[:response])
+        end
       end
 
     end

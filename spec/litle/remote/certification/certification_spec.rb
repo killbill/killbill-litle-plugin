@@ -303,6 +303,94 @@ describe Killbill::Litle::PaymentPlugin do
     purchase_assertions('9', 900.90, txn_nb, properties, assertions)
   end
 
+  it 'passes certification for order id 10' do
+    properties = build_pm_properties(nil,
+                                     {
+                                         :cc_number => '4457010140000141',
+                                         :cc_type => 'visa',
+                                         :cc_exp_month => '09',
+                                         :cc_exp_year => '2021',
+                                         :allow_partial_auth => true,
+                                     },
+                                     false)
+
+    assertions = {
+        :success => true,
+        :message => 'Partially Approved',
+        :approvedAmount => 32000,
+    }
+
+    txn_nb = 0
+
+    txn_nb = authorize_assertions('10', 400.00, txn_nb, properties, assertions)
+  end
+
+  it 'passes certification for order id 11' do
+    properties = build_pm_properties(nil,
+                                     {
+                                         :cc_number => '5112010140000004',
+                                         :cc_type => 'master',
+                                         :cc_exp_month => '11',
+                                         :cc_exp_year => '2021',
+                                         :allow_partial_auth => true,
+                                     },
+                                     false)
+
+    assertions = {
+        :success => true,
+        :message => 'Partially Approved',
+        :approvedAmount => 48000,
+    }
+
+    txn_nb = 0
+
+    txn_nb = authorize_assertions('11', 600.00, txn_nb, properties, assertions)
+  end
+
+  it 'passes certification for order id 12' do
+    properties = build_pm_properties(nil,
+                                     {
+                                         :cc_number => '375001014000009',
+                                         :cc_type => 'american_express',
+                                         :cc_exp_month => '04',
+                                         :cc_exp_year => '2021',
+                                         :allow_partial_auth => true,
+                                     },
+                                     false)
+
+    assertions = {
+        :success => true,
+        :message => 'Partially Approved',
+        :approvedAmount => 40000,
+    }
+
+    txn_nb = 0
+
+    txn_nb = authorize_assertions('12', 500.00, txn_nb, properties, assertions)
+  end
+
+  it 'passes certification for order id 13' do
+    properties = build_pm_properties(nil,
+                                     {
+                                         :cc_number => '6011010140000004',
+                                         :cc_type => 'discover',
+                                         :cc_exp_month => '08',
+                                         :cc_exp_year => '2021',
+                                         :allow_partial_auth => true,
+                                     },
+                                     false)
+
+    assertions = {
+        :success => true,
+        :message => 'Partially Approved',
+        :approvedAmount => 12000,
+    }
+
+    txn_nb = 0
+
+    txn_nb = authorize_assertions('13', 150.00, txn_nb, properties, assertions)
+  end
+
   it 'passes certification for order id 32' do
     properties = build_pm_properties(nil,
                                      {
@@ -683,6 +771,7 @@ describe Killbill::Litle::PaymentPlugin do
     payment_response.gateway_error.should == (assertions[:message] || 'Approved')
     check_property(payment_response.properties, 'avsResultCode', assertions[:avs]) if assertions[:avs]
     check_property(payment_response.properties, 'cvvResultCode', assertions[:cvv]) if assertions[:cvv]
+    check_property(payment_response.properties, 'approvedAmount', assertions[:approvedAmount]) if assertions[:approvedAmount]
   end
 
   def check_property(properties, key, value)

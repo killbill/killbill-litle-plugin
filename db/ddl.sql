@@ -78,5 +78,6 @@ CREATE TABLE `litle_responses` (
   `updated_at` datetime NOT NULL,
   `kb_account_id` varchar(255) DEFAULT NULL,
   `kb_tenant_id` varchar(255) DEFAULT NULL,
+  `approved_amount` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_bin;

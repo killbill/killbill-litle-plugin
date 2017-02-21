@@ -79,5 +79,6 @@ ActiveRecord::Schema.define(:version => 20140410153635) do
     t.datetime "updated_at",        :null => false
     t.string   "kb_account_id"
     t.string   "kb_tenant_id"
+    t.integer  "approved_amount"
   end
 end
