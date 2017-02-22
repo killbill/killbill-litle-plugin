@@ -636,6 +636,59 @@ describe Killbill::Litle::PaymentPlugin do
     authorize_assertions('15', 100.10, txn_nb, properties, assertions)
   end
 
+  it 'passes certification for apple pay' do
+    properties = build_pm_properties(nil,
+                                     {
+                                         :cc_number => '4457010000000009',
+                                         :cc_first_name => 'John',
+                                         :cc_last_name => 'Smith',
+                                         :cc_type => 'visa',
+                                         :cc_exp_month => '01',
+                                         :cc_exp_year => '2021',
+                                         :cc_verification_value => '349',
+                                         :address1 => '1 Main St.',
+                                         :city => 'Burlington',
+                                         :state => 'MA',
+                                         :zip => '01803-3747',
+                                         :country => 'US',
+                                         :payment_cryptogram => 'dGhlIHF1aWNrIGJyb3duIGZveCBqdW1wZWQgb3ZlciB0aGUgbGF6eSBkb2cK',
+                                     },
+                                     false)
+
+    assertions = {}
+
+    txn_nb = 0
+
+    txn_nb = authorize_assertions('applepay', 100.10, txn_nb, properties, assertions)
+  end
+
+  it 'passes certification for android pay merchant decryption' do
+    properties = build_pm_properties(nil,
+                                     {
+                                         :cc_number => '5454545454545454', # dpan
+                                         :cc_first_name => 'John',
+                                         :cc_last_name => 'Smith',
+                                         :cc_type => 'master',  # needs to be inferred from dpan
+                                         :cc_exp_month => '01',
+                                         :cc_exp_year => '2021',
+                                         :cc_verification_value => '123',
+                                         :address1 => '1 Main St.',
+                                         :city => 'Burlington',
+                                         :state => 'MA',
+                                         :zip => '01803-3747',
+                                         :country => 'US',
+                                         :payment_cryptogram => 'dGhlIHF1aWNrIGJyb3duIGZveCBqdW1wZWQgb3ZlciB0aGUgbGF6eSBkb2cK',
+                                         :order_source => 'androidpay',
+                                     },
+                                     false)
+
+    assertions = {}
+
+    txn_nb = 0
+
+    txn_nb = authorize_assertions('androidpay', 100.10, txn_nb, properties, assertions)
+  end
+
   private
 
   def avs_assertions(order_id, txn_nb, properties, assertions = {})
