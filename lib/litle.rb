@@ -98,17 +98,6 @@ module ActiveMerchant #:nodoc:
         parsed
       end
 
-      # Add support for partial captures
-      alias old_transaction_attributes transaction_attributes
-
-      def transaction_attributes(options)
-        attributes = old_transaction_attributes(options)
-        if options[:partial] == true
-          attributes[:partial] = true
-        end
-        attributes
-      end
-
       def success_from(kind, parsed)
         if kind == :registerToken
           %w(000 801 802).include?(parsed[:response])
