@@ -41,11 +41,11 @@ describe Killbill::Litle::PaymentPlugin do
     properties = build_pm_properties(nil,
                                      {
                                          :cc_number => '4457010000000009',
-                                         :cc_first_name => 'John',
+                                         :cc_first_name => 'John & Mary',
                                          :cc_last_name => 'Smith',
                                          :cc_type => 'visa',
                                          :cc_exp_month => '01',
-                                         :cc_exp_year => '2016',
+                                         :cc_exp_year => '2021',
                                          :cc_verification_value => '349',
                                          :address1 => '1 Main St.',
                                          :city => 'Burlington',
@@ -62,12 +62,12 @@ describe Killbill::Litle::PaymentPlugin do
 
     txn_nb = 0
 
-    txn_nb = auth_assertions('1', 100.10, txn_nb, properties, assertions)
+    txn_nb = auth_assertions('1', 101.00, txn_nb, properties, assertions)
 
     # 1: authorize avs
     txn_nb = avs_assertions('1', txn_nb, properties, assertions)
 
-    sale_assertions('1', 100.10, txn_nb, properties, assertions)
+    sale_assertions('1', 101.00, txn_nb, properties, assertions)
   end
 
   it 'passes certification for order id 2' do
@@ -78,7 +78,7 @@ describe Killbill::Litle::PaymentPlugin do
                                          :cc_last_name => 'Hammer',
                                          :cc_type => 'master',
                                          :cc_exp_month => '02',
-                                         :cc_exp_year => '2016',
+                                         :cc_exp_year => '2021',
                                          :cc_verification_value => '261',
                                          :address1 => '2 Main St.',
                                          :city => 'Riverside',
@@ -95,12 +95,12 @@ describe Killbill::Litle::PaymentPlugin do
 
     txn_nb = 0
 
-    txn_nb = auth_assertions('2', 200.20, txn_nb, properties, assertions)
+    txn_nb = auth_assertions('2', 101.00, txn_nb, properties, assertions)
 
     # 2: authorize avs
     txn_nb = avs_assertions('2', txn_nb, properties, assertions)
 
-    sale_assertions('2', 200.20, txn_nb, properties, assertions)
+    sale_assertions('2', 101.00, txn_nb, properties, assertions)
   end
 
   it 'passes certification for order id 3' do
@@ -111,7 +111,7 @@ describe Killbill::Litle::PaymentPlugin do
                                          :cc_last_name => 'Jones',
                                          :cc_type => 'discover',
                                          :cc_exp_month => '03',
-                                         :cc_exp_year => '2016',
+                                         :cc_exp_year => '2021',
                                          :cc_verification_value => '758',
                                          :address1 => '3 Main St.',
                                          :city => 'Bloomfield',
@@ -128,12 +128,12 @@ describe Killbill::Litle::PaymentPlugin do
 
     txn_nb = 0
 
-    auth_assertions('3', 300.30, txn_nb, properties, assertions)
+    auth_assertions('3', 101.00, txn_nb, properties, assertions)
 
     # 3: authorize avs
     txn_nb = avs_assertions('3', txn_nb, properties, assertions)
 
-    sale_assertions('3', 300.30, txn_nb, properties, assertions)
+    sale_assertions('3', 101.00, txn_nb, properties, assertions)
   end
 
   it 'passes certification for order id 4' do
@@ -144,7 +144,7 @@ describe Killbill::Litle::PaymentPlugin do
                                          :cc_last_name => 'Black',
                                          :cc_type => 'american_express',
                                          :cc_exp_month => '04',
-                                         :cc_exp_year => '2016',
+                                         :cc_exp_year => '2021',
                                          :cc_verification_value => '261',
                                          :address1 => '4 Main St.',
                                          :city => 'Laurel',
@@ -161,12 +161,38 @@ describe Killbill::Litle::PaymentPlugin do
 
     txn_nb = 0
 
-    txn_nb = auth_assertions('4', 400.40, txn_nb, properties, assertions)
+    txn_nb = auth_assertions('4', 101.00, txn_nb, properties, assertions)
 
     # 3: authorize avs
     txn_nb = avs_assertions('4', txn_nb, properties, assertions)
 
-    sale_assertions('4', 400.40, txn_nb, properties, assertions)
+    sale_assertions('4', 101.00, txn_nb, properties, assertions)
+  end
+
+  it 'passes certification for order id 5' do
+    properties = build_pm_properties(nil,
+                                     {
+                                         :cc_number => '4100200300011001',
+                                         :cc_type => 'visa',
+                                         :cc_exp_month => '05',
+                                         :cc_exp_year => '2021',
+                                         :cc_verification_value => '463'
+                                     },
+                                     false)
+
+    assertions = {
+        :avs => 'U',
+        :cvv => 'M'
+    }
+
+    txn_nb = 0
+
+    txn_nb = auth_assertions('5', 101.00, txn_nb, properties, assertions)
+
+    # 3: authorize avs
+    txn_nb = avs_assertions('5', txn_nb, properties, assertions)
+
+    sale_assertions('5', 101.00, txn_nb, properties, assertions)
   end
 
   it 'passes certification for order id 6' do
@@ -177,7 +203,7 @@ describe Killbill::Litle::PaymentPlugin do
                                          :cc_last_name => 'Green',
                                          :cc_type => 'visa',
                                          :cc_exp_month => '06',
-                                         :cc_exp_year => '2016',
+                                         :cc_exp_year => '2021',
                                          :cc_verification_value => '992',
                                          :address1 => '6 Main St.',
                                          :city => 'Derry',
@@ -196,8 +222,8 @@ describe Killbill::Litle::PaymentPlugin do
 
     txn_nb = 0
 
-    txn_nb = authorize_assertions('6', 600.60, txn_nb, properties, assertions)
-    txn_nb = purchase_assertions('6', 600.60, txn_nb, properties, assertions)
+    txn_nb = authorize_assertions('6', 101.00, txn_nb, properties, assertions)
+    txn_nb = purchase_assertions('6', 101.00, txn_nb, properties, assertions)
 
     assertions = {
         :success => false,
@@ -216,7 +242,7 @@ describe Killbill::Litle::PaymentPlugin do
                                          :cc_last_name => 'Murray',
                                          :cc_type => 'master',
                                          :cc_exp_month => '07',
-                                         :cc_exp_year => '2016',
+                                         :cc_exp_year => '2021',
                                          :cc_verification_value => '992',
                                          :address1 => '7 Main St.',
                                          :city => 'Amesbury',
@@ -235,9 +261,9 @@ describe Killbill::Litle::PaymentPlugin do
 
     txn_nb = 0
 
-    txn_nb = authorize_assertions('7', 700.70, txn_nb, properties, assertions)
+    txn_nb = authorize_assertions('7', 101.00, txn_nb, properties, assertions)
     txn_nb = avs_assertions('7', txn_nb, properties, assertions)
-    purchase_assertions('7', 700.70, txn_nb, properties, assertions)
+    purchase_assertions('7', 101.00, txn_nb, properties, assertions)
   end
 
   it 'passes certification for order id 8' do
@@ -248,7 +274,7 @@ describe Killbill::Litle::PaymentPlugin do
                                          :cc_last_name => 'Johnson',
                                          :cc_type => 'discover',
                                          :cc_exp_month => '08',
-                                         :cc_exp_year => '2016',
+                                         :cc_exp_year => '2021',
                                          :cc_verification_value => '184',
                                          :address1 => '8 Main St.',
                                          :city => 'Manchester',
@@ -267,9 +293,9 @@ describe Killbill::Litle::PaymentPlugin do
 
     txn_nb = 0
 
-    txn_nb = authorize_assertions('8', 800.80, txn_nb, properties, assertions)
+    txn_nb = authorize_assertions('8', 101.00, txn_nb, properties, assertions)
     txn_nb = avs_assertions('8', txn_nb, properties, assertions)
-    purchase_assertions('8', 800.80, txn_nb, properties, assertions)
+    purchase_assertions('8', 101.00, txn_nb, properties, assertions)
   end
 
   it 'passes certification for order id 9' do
@@ -280,7 +306,7 @@ describe Killbill::Litle::PaymentPlugin do
                                          :cc_last_name => 'Miller',
                                          :cc_type => 'american_express',
                                          :cc_exp_month => '09',
-                                         :cc_exp_year => '2016',
+                                         :cc_exp_year => '2021',
                                          :cc_verification_value => '0421',
                                          :address1 => '9 Main St.',
                                          :city => 'Boston',
@@ -298,9 +324,9 @@ describe Killbill::Litle::PaymentPlugin do
 
     txn_nb = 0
 
-    txn_nb = authorize_assertions('9', 900.90, txn_nb, properties, assertions)
+    txn_nb = authorize_assertions('9', 101.00, txn_nb, properties, assertions)
     txn_nb = avs_assertions('9', txn_nb, properties, assertions)
-    purchase_assertions('9', 900.90, txn_nb, properties, assertions)
+    purchase_assertions('9', 101.00, txn_nb, properties, assertions)
   end
 
   it 'passes certification for order id 32' do
@@ -311,7 +337,7 @@ describe Killbill::Litle::PaymentPlugin do
                                          :cc_last_name => 'Smith',
                                          :cc_type => 'visa',
                                          :cc_exp_month => '01',
-                                         :cc_exp_year => '2016',
+                                         :cc_exp_year => '2021',
                                          :cc_verification_value => '349',
                                          :address1 => '1 Main St.',
                                          :city => 'Burlington',
@@ -321,22 +347,35 @@ describe Killbill::Litle::PaymentPlugin do
                                      },
                                      false)
 
-    assertions = {}
+    assertions = {
+        :message => 'Approved'
+    }
 
     txn_nb = 0
 
     txn_nb = authorize_assertions('32', 100.10, txn_nb, properties, assertions)
 
-    txn_nb = capture_assertions('32A', 50.50, txn_nb, properties, assertions)
+    properties << build_property(:linked_transaction_type, :authorize)
 
     assertions = {
-        :success => false,
-        :message => 'Authorization amount has already been depleted'
+        :success => true,
+        :code => '000',
+        :message => 'Approved'
     }
+
+    txn_nb = capture_assertions('32A', 50.50, txn_nb, properties, assertions)
 
     properties << build_property(:linked_transaction_type, :authorize)
 
+    assertions = {
+        :success => true,
+        :code => '111',
+        :message => 'Authorization amount has already been depleted'
+    }
     void_assertions('32B', txn_nb, properties, assertions)
+    # expected: "Authorization amount has already been depleted"
+    # got: "Approved"
+    # Vantiv is aware of this result
   end
 
   it 'passes certification for order id 33' do
@@ -347,7 +386,7 @@ describe Killbill::Litle::PaymentPlugin do
                                          :cc_last_name => 'Hammer',
                                          :cc_type => 'master',
                                          :cc_exp_month => '02',
-                                         :cc_exp_year => '2016',
+                                         :cc_exp_year => '2021',
                                          :cc_verification_value => '261',
                                          :address1 => '2 Main St.',
                                          :city => 'Riverside',
@@ -376,7 +415,7 @@ describe Killbill::Litle::PaymentPlugin do
                                          :cc_last_name => 'Jones',
                                          :cc_type => 'discover',
                                          :cc_exp_month => '03',
-                                         :cc_exp_year => '2016',
+                                         :cc_exp_year => '2021',
                                          :cc_verification_value => '261',
                                          :address1 => '3 Main St.',
                                          :city => 'Bloomfield',
@@ -405,8 +444,7 @@ describe Killbill::Litle::PaymentPlugin do
                                          :cc_last_name => 'Black',
                                          :cc_type => 'american_express',
                                          :cc_exp_month => '04',
-                                         :cc_exp_year => '2016',
-                                         :cc_verification_value => '261',
+                                         :cc_exp_year => '2021',
                                          :address1 => '4 Main St.',
                                          :city => 'Laurel',
                                          :state => 'MD',
@@ -415,23 +453,37 @@ describe Killbill::Litle::PaymentPlugin do
                                      },
                                      false)
 
-    assertions = {}
+    assertions = {
+        :success => true,
+        :message => 'Approved'
+    }
 
     txn_nb = 0
 
     txn_nb = authorize_assertions('35', 101.00, txn_nb, properties, assertions)
 
-    txn_nb = capture_assertions('35A', 50.50, txn_nb, properties, assertions)
-
     assertions = {
-        :success => false,
-        :message => 'Reversal amount does not match Authorization amount'
+        :success => true,
+        :message => 'Approved'
     }
 
     properties << build_property(:linked_transaction_type, :authorize)
 
+    txn_nb = capture_assertions('35A', 50.50, txn_nb, properties, assertions)
+
+    assertions = {
+        :success => true,
+        :message => 'Reversal amount does not match authorization amount'
+    }
+
+    properties << build_property(:amount, 50.50)
+    properties << build_property(:linked_transaction_type, :authorize)
+
     # ActiveMerchant doesn't pass an amount in the void call
-    #void_assertions('35B', txn_nb, properties, assertions)
+    void_assertions('35B', txn_nb, properties, assertions)
+    # expected: "Reversal amount does not match Authorization amount"
+    # got: "Approved"
+    # Vantiv is aware of this result
   end
 
   it 'passes certification for order id 36' do
@@ -440,30 +492,36 @@ describe Killbill::Litle::PaymentPlugin do
                                          :cc_number => '375000026600004',
                                          :cc_type => 'american_express',
                                          :cc_exp_month => '05',
-                                         :cc_exp_year => '2016'
+                                         :cc_exp_year => '2021'
                                      },
                                      false)
 
-    assertions = {}
+    assertions = {
+        :success => true,
+        :message => 'Approved'
+    }
 
     txn_nb = 0
 
     txn_nb = authorize_assertions('36', 205.00, txn_nb, properties, assertions)
 
     assertions = {
-        :success => false,
-        :message => 'Reversal amount does not match Authorization amount'
+        :success => true,
+        :message => 'Reversal amount does not match authorization amount'
     }
 
     properties << build_property(:linked_transaction_type, :authorize)
     properties << build_property(:amount, 10000)
 
     # ActiveMerchant doesn't pass an amount in the void call
-    #void_assertions('36A', txn_nb, properties, assertions)
+    void_assertions('36A', txn_nb, properties, assertions)
+    # expected: "Reversal amount does not match Authorization amount"
+    # got: "Approved"
+    # Vantiv is aware of this result
   end
 
-  # Conflicts with 52
-  xit 'passes certification for order id 50' do
+  # Conflicts with 52?
+  it 'passes certification for order id 50' do
     properties = build_pm_properties(nil,
                                      {
                                          :cc_number => '4457119922390123'
@@ -476,6 +534,9 @@ describe Killbill::Litle::PaymentPlugin do
     }
 
     store_assertions('50', properties, assertions)
+    # expected: "Account number was successfully registered"
+    # got: "Account number was previously registered"
+    # Vantiv is aware of this result
   end
 
   it 'passes certification for order id 51' do
@@ -508,7 +569,142 @@ describe Killbill::Litle::PaymentPlugin do
     store_assertions('52', properties, assertions)
   end
 
-  it 'passes certification for PayPage test case 14' do
+  it 'passes certification for order id 55' do
+    properties = build_pm_properties(nil,
+                                     {
+                                         :cc_number => '5435101234510196',
+                                         :cc_type => 'master',
+                                         :cc_exp_month => '11',
+                                         :cc_exp_year => '2021',
+                                         :cc_verification_value => '987'
+                                     },
+                                     false)
+
+    assertions = {
+        :message => 'Approved',
+        :token_message => 'Account number was successfully registered',
+        :token_response_code => '801'
+    }
+
+    txn_nb = 0
+
+    authorize_assertions('55', 150.00, txn_nb, properties, assertions)
+  end
+
+  it 'passes certification for order id 56' do
+    properties = build_pm_properties(nil,
+                                     {
+                                         :cc_number => '5435109999999999',
+                                         :cc_type => 'master',
+                                         :cc_exp_month => '11',
+                                         :cc_exp_year => '2021',
+                                         :cc_verification_value => '987'
+                                     },
+                                     false)
+
+    assertions = {
+        :success => false,
+        :message => 'Invalid Account Number'
+    }
+
+    txn_nb = 0
+
+    authorize_assertions('56', 150.00, txn_nb, properties, assertions)
+  end
+
+  it 'passes certification for order id 57 and 58' do
+    properties = build_pm_properties(nil,
+                                     {
+                                         :cc_number => '5435101234510196',
+                                         :cc_type => 'master',
+                                         :cc_exp_month => '11',
+                                         :cc_exp_year => '2021',
+                                         :cc_verification_value => '987'
+                                     },
+                                     false)
+
+    assertions = {
+        :message => 'Approved',
+        :token_message => 'Account number was previously registered',
+        :token_response_code => '802'
+    }
+
+    txn_nb = 0
+
+    authorize_assertions('57', 150.00, txn_nb, properties, assertions)
+
+    properties << build_property(:linked_transaction_type, :authorize)
+
+    assertions = {
+        :code => '000',
+        :message => 'Approved'
+    }
+
+    authorize_assertions('58', 150.00, txn_nb, properties, assertions)
+  end
+
+  it 'passes certification for order id 59' do
+    properties = build_pm_properties(nil,
+                                     {
+                                         :token => '1111000100092332',
+                                         :cc_exp_month => '11',
+                                         :cc_exp_year => '2021'
+                                     },
+                                     false)
+
+    assertions = {
+        :success => false,
+        :message => 'Token was not found',
+        :code => '822'
+    }
+
+    txn_nb = 0
+
+    authorize_assertions('59', 150.00, txn_nb, properties, assertions)
+  end
+
+  it 'passes certification for order id 60' do
+    properties = build_pm_properties(nil,
+                                     {
+                                         :token => '1112000100000085',
+                                         :cc_exp_month => '11',
+                                         :cc_exp_year => '2021'
+                                     },
+                                     false)
+
+    assertions = {
+        :success => false,
+        :message => 'Token was invalid',
+        :code => '823'
+    }
+
+    txn_nb = 0
+
+    authorize_assertions('60', 150.00, txn_nb, properties, assertions)
+  end
+
+  it 'passes certification for eProtect test case 13' do
+    properties = build_pm_properties(nil,
+                                     {
+                                         :cc_exp_month => '12',
+                                         :cc_exp_year => '2030',
+                                         :cc_verification_value => '987',
+                                         # this paypageRegistrationId should be the one received in eProtect's Test Case #1
+                                         :paypageRegistrationId => 'SUhpblR1K1JjSVQyRWx0WUxhTUlsT2hkd3c4bVN2YXlWNkZZa0M4Ly9uQzNuZkFEOVpBNkM1c2dGcGJZbnBraA=='
+                                     },
+                                     false)
+
+    assertions = {
+        :success => true,
+        :message => 'Approved'
+    }
+
+    txn_nb = 0
+
+    authorize_assertions('13', 100.10, txn_nb, properties, assertions)
+  end
+
+  it 'passes certification for eProtect test case 14' do
     properties = build_pm_properties(nil,
                                      {
                                          :cc_exp_month => '12',
@@ -528,7 +724,7 @@ describe Killbill::Litle::PaymentPlugin do
     authorize_assertions('14', 100.10, txn_nb, properties, assertions)
   end
 
-  it 'passes certification for PayPage test case 15' do
+  it 'passes certification for eProtect test case 15' do
     properties = build_pm_properties(nil,
                                      {
                                          :cc_exp_month => '12',
@@ -643,13 +839,12 @@ describe Killbill::Litle::PaymentPlugin do
   end
 
   def credit_assertions(order_id, amount, txn_nb, properties, assertions = {})
-    # TODO Unsupported by ActiveMerchant
-    return txn_nb + 1
-
     properties = properties.clone
     properties << build_property(:order_id, order_id)
+    # adding Capture / Purchase litleTxnId to be used in Credit / Refund Request
+    properties << build_property(:capture_litle_txn_id, ::Killbill::Litle::LitleResponse.last.params_litle_txn_id)
 
-    payment_response = @plugin.credit_payment(@pm.kb_account_id,
+    payment_response = @plugin.refund_payment(@pm.kb_account_id,
                                               @kb_payment.id,
                                               @kb_payment.transactions[txn_nb].id,
                                               @pm.kb_payment_method_id,
