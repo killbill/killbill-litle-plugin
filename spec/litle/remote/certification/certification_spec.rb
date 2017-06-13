@@ -841,8 +841,6 @@ describe Killbill::Litle::PaymentPlugin do
   def credit_assertions(order_id, amount, txn_nb, properties, assertions = {})
     properties = properties.clone
     properties << build_property(:order_id, order_id)
-    # adding Capture / Purchase litleTxnId to be used in Credit / Refund Request
-    properties << build_property(:capture_litle_txn_id, ::Killbill::Litle::LitleResponse.last.params_litle_txn_id)
 
     payment_response = @plugin.refund_payment(@pm.kb_account_id,
                                               @kb_payment.id,
