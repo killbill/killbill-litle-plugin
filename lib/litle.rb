@@ -39,20 +39,6 @@ module ActiveMerchant #:nodoc:
         commit(:registerToken, request)
       end
 
-      def refund(money, authorization, options = {})
-        transaction_id = options[:capture_litle_txn_id]
-        request = build_xml_request do |doc|
-          add_authentication(doc)
-          add_descriptor(doc, options)
-          doc.credit(transaction_attributes(options)) do
-            doc.litleTxnId(transaction_id)
-            doc.amount(money) if money
-          end
-        end
-
-        commit(:credit, request)
-      end
-
       def add_auth_purchase_params(doc, money, payment_method, options)
         doc.orderId(truncate(options[:order_id], 24))
         doc.amount(money)
