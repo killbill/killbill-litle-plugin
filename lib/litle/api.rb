@@ -28,7 +28,7 @@ module Killbill #:nodoc:
 
       def authorize_payment(kb_account_id, kb_payment_id, kb_payment_transaction_id, kb_payment_method_id, amount, currency, properties, context)
         # Pass extra parameters for the gateway here
-        options = {}
+        options = set_payment_processor_account_id(currency, context.tenant_id) 
 
         paypage_registration_id = find_value_from_properties(properties, 'paypageRegistrationId')
         options[:paypage_registration_id] = paypage_registration_id unless paypage_registration_id.blank?
@@ -39,7 +39,7 @@ module Killbill #:nodoc:
 
       def capture_payment(kb_account_id, kb_payment_id, kb_payment_transaction_id, kb_payment_method_id, amount, currency, properties, context)
         # Pass extra parameters for the gateway here
-        options = {}
+        options = set_payment_processor_account_id(currency, context.tenant_id) 
 
         properties = merge_properties(properties, options)
         super(kb_account_id, kb_payment_id, kb_payment_transaction_id, kb_payment_method_id, amount, currency, properties, context)
@@ -47,7 +47,7 @@ module Killbill #:nodoc:
 
       def purchase_payment(kb_account_id, kb_payment_id, kb_payment_transaction_id, kb_payment_method_id, amount, currency, properties, context)
         # Pass extra parameters for the gateway here
-        options = {}
+        options = set_payment_processor_account_id(currency, context.tenant_id) 
 
         properties = merge_properties(properties, options)
         super(kb_account_id, kb_payment_id, kb_payment_transaction_id, kb_payment_method_id, amount, currency, properties, context)
@@ -55,7 +55,7 @@ module Killbill #:nodoc:
 
       def void_payment(kb_account_id, kb_payment_id, kb_payment_transaction_id, kb_payment_method_id, properties, context)
         # Pass extra parameters for the gateway here
-        options = {}
+        options = set_payment_processor_account_id(currency, context.tenant_id) 
 
         properties = merge_properties(properties, options)
         super(kb_account_id, kb_payment_id, kb_payment_transaction_id, kb_payment_method_id, properties, context)
@@ -63,7 +63,7 @@ module Killbill #:nodoc:
 
       def credit_payment(kb_account_id, kb_payment_id, kb_payment_transaction_id, kb_payment_method_id, amount, currency, properties, context)
         # Pass extra parameters for the gateway here
-        options = {}
+        options = set_payment_processor_account_id(currency, context.tenant_id) 
 
         properties = merge_properties(properties, options)
         super(kb_account_id, kb_payment_id, kb_payment_transaction_id, kb_payment_method_id, amount, currency, properties, context)
@@ -71,7 +71,7 @@ module Killbill #:nodoc:
 
       def refund_payment(kb_account_id, kb_payment_id, kb_payment_transaction_id, kb_payment_method_id, amount, currency, properties, context)
         # Pass extra parameters for the gateway here
-        options = {}
+        options = set_payment_processor_account_id(currency, context.tenant_id) 
 
         properties = merge_properties(properties, options)
         super(kb_account_id, kb_payment_id, kb_payment_transaction_id, kb_payment_method_id, amount, currency, properties, context)
@@ -184,6 +184,15 @@ module Killbill #:nodoc:
           # Set the response body
           # gw_notification.entity =
         end
+      end
+
+      def set_payment_processor_account_id(currency, kb_tenant_id=nil)
+        config = ::Killbill::Plugin::ActiveMerchant.config(kb_tenant_id)
+        options = {}
+        if config[:multicurrency]
+          options = {:payment_processor_account_id => currency}
+        end
+        options
       end
     end
   end
