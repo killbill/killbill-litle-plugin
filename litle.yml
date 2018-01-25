@@ -15,6 +15,9 @@
     :secure_page_url: "https://request-prelive.np-securepaypage-litle.com"
     :paypage_id: "litle-paypage-id-EUR"
     :test: "<%= ENV['LITLE_TEST'] || true %>"
+:multicurrency:
+  :USD: "USD"
+  :EUR: "EUR"
 
 :database:
 # SQLite (development)

@@ -189,8 +189,10 @@ module Killbill #:nodoc:
       def set_payment_processor_account_id(currency, kb_tenant_id=nil)
         config = ::Killbill::Plugin::ActiveMerchant.config(kb_tenant_id)
         options = {}
-        if config[:multicurrency]
-          options = {:payment_processor_account_id => currency}
+        currency_account_id_map = config[:multicurrency]
+        if currency_account_id_map && currency_account_id_map.is_a?(Hash)
+          currency_account_id_map[:default] = currency_account_id_map.values[0]
+          options = {:payment_processor_account_id => currency_account_id_map[currency.to_sym]}
         end
         options
       end
