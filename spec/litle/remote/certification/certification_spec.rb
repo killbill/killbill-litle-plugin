@@ -329,6 +329,94 @@ describe Killbill::Litle::PaymentPlugin do
     purchase_assertions('9', 101.00, txn_nb, properties, assertions)
   end
 
+  it 'passes certification for order id 10' do
+    properties = build_pm_properties(nil,
+                                     {
+                                         :cc_number => '4457010140000141',
+                                         :cc_type => 'visa',
+                                         :cc_exp_month => '09',
+                                         :cc_exp_year => '2021',
+                                         :allow_partial_auth => true,
+                                     },
+                                     false)
+
+    assertions = {
+        :success => true,
+        :message => 'Partially Approved',
+        :approvedAmount => 32000,
+    }
+
+    txn_nb = 0
+
+    txn_nb = authorize_assertions('10', 400.00, txn_nb, properties, assertions)
+  end
+
+  it 'passes certification for order id 11' do
+    properties = build_pm_properties(nil,
+                                     {
+                                         :cc_number => '5112010140000004',
+                                         :cc_type => 'master',
+                                         :cc_exp_month => '11',
+                                         :cc_exp_year => '2021',
+                                         :allow_partial_auth => true,
+                                     },
+                                     false)
+
+    assertions = {
+        :success => true,
+        :message => 'Partially Approved',
+        :approvedAmount => 48000,
+    }
+
+    txn_nb = 0
+
+    txn_nb = authorize_assertions('11', 600.00, txn_nb, properties, assertions)
+  end
+
+  it 'passes certification for order id 12' do
+    properties = build_pm_properties(nil,
+                                     {
+                                         :cc_number => '375001014000009',
+                                         :cc_type => 'american_express',
+                                         :cc_exp_month => '04',
+                                         :cc_exp_year => '2021',
+                                         :allow_partial_auth => true,
+                                     },
+                                     false)
+
+    assertions = {
+        :success => true,
+        :message => 'Partially Approved',
+        :approvedAmount => 40000,
+    }
+
+    txn_nb = 0
+
+    txn_nb = authorize_assertions('12', 500.00, txn_nb, properties, assertions)
+  end
+
+  it 'passes certification for order id 13' do
+    properties = build_pm_properties(nil,
+                                     {
+                                         :cc_number => '6011010140000004',
+                                         :cc_type => 'discover',
+                                         :cc_exp_month => '08',
+                                         :cc_exp_year => '2021',
+                                         :allow_partial_auth => true,
+                                     },
+                                     false)
+
+    assertions = {
+        :success => true,
+        :message => 'Partially Approved',
+        :approvedAmount => 12000,
+    }
+
+    txn_nb = 0
+
+    txn_nb = authorize_assertions('13', 150.00, txn_nb, properties, assertions)
+  end
+
   it 'passes certification for order id 32' do
     properties = build_pm_properties(nil,
                                      {
@@ -744,6 +832,59 @@ describe Killbill::Litle::PaymentPlugin do
     authorize_assertions('15', 100.10, txn_nb, properties, assertions)
   end
 
+  it 'passes certification for apple pay' do
+    properties = build_pm_properties(nil,
+                                     {
+                                         :cc_number => '4457010000000009',
+                                         :cc_first_name => 'John',
+                                         :cc_last_name => 'Smith',
+                                         :cc_type => 'visa',
+                                         :cc_exp_month => '01',
+                                         :cc_exp_year => '2021',
+                                         :cc_verification_value => '349',
+                                         :address1 => '1 Main St.',
+                                         :city => 'Burlington',
+                                         :state => 'MA',
+                                         :zip => '01803-3747',
+                                         :country => 'US',
+                                         :payment_cryptogram => 'dGhlIHF1aWNrIGJyb3duIGZveCBqdW1wZWQgb3ZlciB0aGUgbGF6eSBkb2cK',
+                                     },
+                                     false)
+
+    assertions = {}
+
+    txn_nb = 0
+
+    txn_nb = authorize_assertions('applepay', 100.10, txn_nb, properties, assertions)
+  end
+
+  it 'passes certification for android pay merchant decryption' do
+    properties = build_pm_properties(nil,
+                                     {
+                                         :cc_number => '5454545454545454', # dpan
+                                         :cc_first_name => 'John',
+                                         :cc_last_name => 'Smith',
+                                         :cc_type => 'master',  # needs to be inferred from dpan
+                                         :cc_exp_month => '01',
+                                         :cc_exp_year => '2021',
+                                         :cc_verification_value => '123',
+                                         :address1 => '1 Main St.',
+                                         :city => 'Burlington',
+                                         :state => 'MA',
+                                         :zip => '01803-3747',
+                                         :country => 'US',
+                                         :payment_cryptogram => 'dGhlIHF1aWNrIGJyb3duIGZveCBqdW1wZWQgb3ZlciB0aGUgbGF6eSBkb2cK',
+                                         :order_source => 'androidpay',
+                                     },
+                                     false)
+
+    assertions = {}
+
+    txn_nb = 0
+
+    txn_nb = authorize_assertions('androidpay', 100.10, txn_nb, properties, assertions)
+  end
+
   private
 
   def avs_assertions(order_id, txn_nb, properties, assertions = {})
@@ -789,7 +930,7 @@ describe Killbill::Litle::PaymentPlugin do
 
   def authorize_assertions(order_id, amount, txn_nb, properties, assertions = {})
     properties = properties.clone
-    properties << build_property(:order_id, order_id)
+    properties << build_property(:order_id, order_id + " (" + SecureRandom.hex(6) + ")")
 
     payment_response = @plugin.authorize_payment(@pm.kb_account_id,
                                                  @kb_payment.id,
@@ -806,7 +947,7 @@ describe Killbill::Litle::PaymentPlugin do
 
   def capture_assertions(order_id, amount, txn_nb, properties, assertions = {})
     properties = properties.clone
-    properties << build_property(:order_id, order_id)
+    properties << build_property(:order_id, order_id + " (" + SecureRandom.hex(6) + ")")
 
     payment_response = @plugin.capture_payment(@pm.kb_account_id,
                                                @kb_payment.id,
@@ -823,7 +964,7 @@ describe Killbill::Litle::PaymentPlugin do
 
   def purchase_assertions(order_id, amount, txn_nb, properties, assertions = {})
     properties = properties.clone
-    properties << build_property(:order_id, order_id)
+    properties << build_property(:order_id, order_id + " (" + SecureRandom.hex(6) + ")")
 
     payment_response = @plugin.purchase_payment(@pm.kb_account_id,
                                                 @kb_payment.id,
@@ -840,7 +981,7 @@ describe Killbill::Litle::PaymentPlugin do
 
   def credit_assertions(order_id, amount, txn_nb, properties, assertions = {})
     properties = properties.clone
-    properties << build_property(:order_id, order_id)
+    properties << build_property(:order_id, order_id + " (" + SecureRandom.hex(6) + ")")
 
     payment_response = @plugin.refund_payment(@pm.kb_account_id,
                                               @kb_payment.id,
@@ -857,7 +998,7 @@ describe Killbill::Litle::PaymentPlugin do
 
   def void_assertions(order_id, txn_nb, properties, assertions = {})
     properties = properties.clone
-    properties << build_property(:order_id, order_id)
+    properties << build_property(:order_id, order_id + " (" + SecureRandom.hex(6) + ")")
 
     payment_response = @plugin.void_payment(@pm.kb_account_id,
                                             @kb_payment.id,
@@ -876,6 +1017,7 @@ describe Killbill::Litle::PaymentPlugin do
     payment_response.gateway_error.should == (assertions[:message] || 'Approved')
     check_property(payment_response.properties, 'avsResultCode', assertions[:avs]) if assertions[:avs]
     check_property(payment_response.properties, 'cvvResultCode', assertions[:cvv]) if assertions[:cvv]
+    check_property(payment_response.properties, 'approvedAmount', assertions[:approvedAmount]) if assertions[:approvedAmount]
   end
 
   def check_property(properties, key, value)
@@ -884,7 +1026,7 @@ describe Killbill::Litle::PaymentPlugin do
 
   def store_assertions(order_id, properties, assertions = {})
     properties = properties.clone
-    properties << build_property(:order_id, order_id)
+    properties << build_property(:order_id, order_id + " (" + SecureRandom.hex(6) + ")")
 
     info = Killbill::Plugin::Model::PaymentMethodPlugin.new
     info.properties = []

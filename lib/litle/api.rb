@@ -70,11 +70,22 @@ module Killbill #:nodoc:
       end
 
       def refund_payment(kb_account_id, kb_payment_id, kb_payment_transaction_id, kb_payment_method_id, amount, currency, properties, context)
-        # Pass extra parameters for the gateway here
-        options = {}
+        gateway_call_proc = Proc.new do |gateway, linked_transaction, payment_source, amount_in_cents, options|
+          gateway.refund(amount_in_cents, linked_transaction.txn_id, options)
+        end
 
-        properties = merge_properties(properties, options)
-        super(kb_account_id, kb_payment_id, kb_payment_transaction_id, kb_payment_method_id, amount, currency, properties, context)
+        linked_transaction_proc = Proc.new do |amount_in_cents, options|
+          # we need the id of either a capture or sale transaction
+          transaction = @transaction_model.find_candidate_transaction_for_refund(kb_payment_id, context.tenant_id, :CAPTURE)
+          if transaction.nil?
+            transaction = @transaction_model.find_candidate_transaction_for_refund(kb_payment_id, context.tenant_id, :PURCHASE)
+          end
+          # This should never happen
+          raise "Unable to retrieve transaction to refund for operation=refund, kb_payment_id=#{kb_payment_id}, kb_payment_transaction_id=#{kb_payment_transaction_id}, kb_payment_method_id=#{kb_payment_method_id}" if transaction.nil?
+          transaction
+        end
+
+        dispatch_to_gateways(:refund, kb_account_id, kb_payment_id, kb_payment_transaction_id, kb_payment_method_id, amount, currency, properties, context, gateway_call_proc, linked_transaction_proc)
       end
 
       def get_payment_info(kb_account_id, kb_payment_id, properties, context)

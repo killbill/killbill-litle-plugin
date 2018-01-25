@@ -22,7 +22,8 @@ module Killbill #:nodoc:
                   :params_auth_code     => extract(response, 'authCode'),
                   :params_response      => extract(response, 'response'),
                   :params_response_time => extract(response, 'responseTime'),
-                  :params_message       => extract(response, 'message')
+                  :params_message       => extract(response, 'message'),
+                  :approved_amount      => extract(response, 'approvedAmount'),
               }.merge!(extra_params),
               model)
       end
@@ -38,6 +39,12 @@ module Killbill #:nodoc:
 
       def first_reference_id
         params_litle_txn_id
+      end
+
+      def to_transaction_info_plugin(transaction=nil)
+        t_info_plugin = super(transaction)
+        t_info_plugin.properties << create_plugin_property('approvedAmount', approved_amount)
+        t_info_plugin
       end
     end
   end
