@@ -42,9 +42,14 @@ curl -v \
     :login: "your-username"
     :password: "your-password"
     :secure_page_url: "litle-secure-page-url"
-    :paypage_id: "your-paypage-id-EUR"' \
+    :paypage_id: "your-paypage-id-EUR" 
+:multicurrency:
+  :USD: "USD"
+  :EUR: "EUR"' \
      http://127.0.0.1:8080/1.0/kb/tenants/uploadPluginConfig/killbill-litle
 ```
+
+`multicurrency` setting provides the mapping between trasaction currency to `account_Id`.  The default currency is the first key in the `multicurrency` config, in the example above, it is `"USD"`.  If `multicurrency` is not present, the default `account_id` will be the first `account_id` in `litle` dictionary.
 
 To go to production, create a `litle.yml` configuration file under `/var/tmp/bundles/plugins/ruby/killbill-litle/x.y.z/` containing the following:
 

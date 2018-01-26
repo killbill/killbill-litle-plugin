@@ -8,6 +8,53 @@ describe Killbill::Litle::PaymentPlugin do
     @plugin.stop_plugin
   end
 
+  it 'should select the default payment processor account' do 
+    ::Killbill::Litle::LitlePaymentMethod.delete_all
+    ::Killbill::Litle::LitleResponse.delete_all
+    ::Killbill::Litle::LitleTransaction.delete_all
+
+    @call_context = build_call_context
+
+    @properties = []
+    @pm         = create_payment_method(::Killbill::Litle::LitlePaymentMethod, nil, @call_context.tenant_id, @properties)
+    @amount     = BigDecimal.new('100')
+    @currency   = "CAD"
+
+    kb_payment_id = SecureRandom.uuid
+    1.upto(6) do
+      @kb_payment = @plugin.kb_apis.proxied_services[:payment_api].add_payment(kb_payment_id)
+    end
+
+    properties = build_pm_properties
+
+    payment_response = @plugin.purchase_payment(@pm.kb_account_id, @kb_payment.id, @kb_payment.transactions[0].id, @pm.kb_payment_method_id, @amount, @currency, properties, @call_context)
+    pp payment_response.properties
+    (payment_response.properties.find { |kv| kv.key.to_s == 'payment_processor_account_id' }).value.to_s.should == 'USD'
+  end
+
+  it 'should select the correct payment processor' do
+    ::Killbill::Litle::LitlePaymentMethod.delete_all
+    ::Killbill::Litle::LitleResponse.delete_all
+    ::Killbill::Litle::LitleTransaction.delete_all
+
+    @call_context = build_call_context
+
+    @properties = []
+    @pm         = create_payment_method(::Killbill::Litle::LitlePaymentMethod, nil, @call_context.tenant_id, @properties)
+    @amount     = BigDecimal.new('100')
+    @currency   = "EUR"
+
+    kb_payment_id = SecureRandom.uuid
+    1.upto(6) do
+      @kb_payment = @plugin.kb_apis.proxied_services[:payment_api].add_payment(kb_payment_id)
+    end
+
+    properties = build_pm_properties
+
+    payment_response = @plugin.purchase_payment(@pm.kb_account_id, @kb_payment.id, @kb_payment.transactions[0].id, @pm.kb_payment_method_id, @amount, @currency, properties, @call_context)
+    pp payment_response.properties
+    (payment_response.properties.find { |kv| kv.key.to_s == 'payment_processor_account_id' }).value.to_s.should == @currency
+  end
   # No offsite payments integration
 
   #xit 'should generate forms correctly' do
