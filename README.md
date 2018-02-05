@@ -49,7 +49,7 @@ curl -v \
      http://127.0.0.1:8080/1.0/kb/tenants/uploadPluginConfig/killbill-litle
 ```
 
-`multicurrency` setting provides the mapping between trasaction currency to `account_Id`.  The default currency is the first key in the `multicurrency` config, in the example above, it is `"USD"`.  If `multicurrency` is not present, the default `account_id` will be the first `account_id` in `litle` dictionary.
+`multicurrency` setting provides the mapping between transaction currency to `account_id`.  The default currency is the first key in the `multicurrency` config, in the example above, it is `"USD"`.  If `multicurrency` is not present, the default `account_id` will be the first `account_id` in `litle` dictionary.
 
 To go to production, create a `litle.yml` configuration file under `/var/tmp/bundles/plugins/ruby/killbill-litle/x.y.z/` containing the following:
 
