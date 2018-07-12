@@ -7,7 +7,7 @@ require 'logger'
 require 'rspec'
 
 RSpec.configure do |config|
-  config.color_enabled = true
+  config.color = true
   config.tty = true
   config.formatter = 'documentation'
   config.before(:each) do

@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'pp'
 
 describe Killbill::Litle::PaymentPlugin do
 
@@ -29,7 +30,7 @@ describe Killbill::Litle::PaymentPlugin do
 
     payment_response = @plugin.purchase_payment(@pm.kb_account_id, @kb_payment.id, @kb_payment.transactions[0].id, @pm.kb_payment_method_id, @amount, @currency, properties, @call_context)
     pp payment_response.properties
-    (payment_response.properties.find { |kv| kv.key.to_s == 'payment_processor_account_id' }).value.to_s.should == 'USD'
+    expect((payment_response.properties.find { |kv| kv.key.to_s == 'payment_processor_account_id' }).value.to_s).to eq('USD')
   end
 
   it 'should select the correct payment processor' do
@@ -53,7 +54,7 @@ describe Killbill::Litle::PaymentPlugin do
 
     payment_response = @plugin.purchase_payment(@pm.kb_account_id, @kb_payment.id, @kb_payment.transactions[0].id, @pm.kb_payment_method_id, @amount, @currency, properties, @call_context)
     pp payment_response.properties
-    (payment_response.properties.find { |kv| kv.key.to_s == 'payment_processor_account_id' }).value.to_s.should == @currency
+    expect((payment_response.properties.find { |kv| kv.key.to_s == 'payment_processor_account_id' }).value.to_s).to eq(@currency)
   end
   # No offsite payments integration
 
