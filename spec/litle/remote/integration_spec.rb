@@ -43,7 +43,7 @@ describe Killbill::Litle::PaymentPlugin do
     responses = Killbill::Litle::LitleResponse.all
     responses.size.should == 2
     responses[0].api_call.should == 'add_payment_method'
-    responses[0].message.should == 'Approved'
+    responses[0].message.should == 'Account number was successfully registered'
     responses[1].api_call.should == 'purchase'
     responses[1].message.should == 'Approved'
     transactions = Killbill::Litle::LitleTransaction.all
