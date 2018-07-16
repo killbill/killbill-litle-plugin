@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'pp'
 
 describe Killbill::Litle::PaymentPlugin do
 
@@ -29,7 +28,6 @@ describe Killbill::Litle::PaymentPlugin do
     properties = build_pm_properties
 
     payment_response = @plugin.purchase_payment(@pm.kb_account_id, @kb_payment.id, @kb_payment.transactions[0].id, @pm.kb_payment_method_id, @amount, @currency, properties, @call_context)
-    pp payment_response.properties
     expect((payment_response.properties.find { |kv| kv.key.to_s == 'payment_processor_account_id' }).value.to_s).to eq('USD')
   end
 
@@ -53,7 +51,6 @@ describe Killbill::Litle::PaymentPlugin do
     properties = build_pm_properties
 
     payment_response = @plugin.purchase_payment(@pm.kb_account_id, @kb_payment.id, @kb_payment.transactions[0].id, @pm.kb_payment_method_id, @amount, @currency, properties, @call_context)
-    pp payment_response.properties
     expect((payment_response.properties.find { |kv| kv.key.to_s == 'payment_processor_account_id' }).value.to_s).to eq(@currency)
   end
   # No offsite payments integration

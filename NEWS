@@ -1,3 +1,6 @@
+5.0.0
+    Initial release for Kill Bill 0.20.x
+
 4.0.1
     [DDL] Update message column to be of type TEXT
     Remove git dependency
